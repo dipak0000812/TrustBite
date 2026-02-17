@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - TrustBite</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dashboard">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="logo-text">TrustBite</span>
+                </a>
+                <div class="nav-actions">
+                    <a href="dashboard.html" class="btn btn-outline">Browse Mess</a>
+                    <div class="user-dropdown">
+                        <button class="user-avatar" onclick="toggleUserMenu()">
+                            <span class="avatar-text" id="userInitials">U</span>
+                        </button>
+                        <div class="dropdown-menu" id="userMenu">
+                            <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                            <a href="subscription.html" class="dropdown-item">📋 My Subscriptions</a>
+                            <a href="#" class="dropdown-item" onclick="logout()">🚪 Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Container -->
+    <div class="page-container">
+        <div class="container">
+            <div class="profile-layout">
+                <!-- Left Sidebar -->
+                <aside class="profile-sidebar">
+                    <div class="profile-card">
+                        <div class="profile-avatar-large">
+                            <span id="profileInitials">UK</span>
+                        </div>
+                        <h3 class="profile-name" id="profileName">User Name</h3>
+                        <p class="profile-email" id="profileEmail">user@email.com</p>
+                        <span class="profile-badge">Student</span>
+
+                        <div class="profile-stats">
+                            <div class="stat-box">
+                                <div class="stat-value">2</div>
+                                <div class="stat-label">Active Plans</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">8</div>
+                                <div class="stat-label">Reviews</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">85</div>
+                                <div class="stat-label">Trust Score</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-menu">
+                        <button class="menu-item active" onclick="showSection('personal')">
+                            <span>👤</span> Personal Information
+                        </button>
+                        <button class="menu-item" onclick="showSection('security')">
+                            <span>🔒</span> Security
+                        </button>
+                        <button class="menu-item" onclick="showSection('preferences')">
+                            <span>⚙️</span> Preferences
+                        </button>
+                        <button class="menu-item" onclick="showSection('reviews')">
+                            <span>⭐</span> My Reviews
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="profile-main">
+                    <!-- Personal Information Section -->
+                    <div id="personalSection" class="profile-section active">
+                        <div class="section-header">
+                            <h2 class="section-title">Personal Information</h2>
+                            <button class="btn btn-primary" onclick="toggleEditMode()">Edit Profile</button>
+                        </div>
+
+                        <form id="profileForm" class="profile-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" id="fullName" class="form-input" value="User Name" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Address</label>
+                                    <input type="email" id="email" class="form-input" value="user@email.com" disabled>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="tel" id="phone" class="form-input" value="+91 98765 43210" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" id="dob" class="form-input" value="2000-01-01" disabled>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Location</label>
+                                <input type="text" id="location" class="form-input" value="Kothrud, Pune" disabled>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">College/Workplace</label>
+                                <input type="text" id="college" class="form-input" value="Pune University" disabled>
+                            </div>
+
+                            <div class="form-actions" style="display: none;" id="formActions">
+                                <button type="button" class="btn btn-outline" onclick="cancelEdit()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Security Section -->
+                    <div id="securitySection" class="profile-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Security Settings</h2>
+                        </div>
+
+                        <div class="security-card">
+                            <div class="security-item">
+                                <div class="security-info">
+                                    <h4>Password</h4>
+                                    <p>Last changed 30 days ago</p>
+                                </div>
+                                <button class="btn btn-outline" onclick="changePassword()">Change Password</button>
+                            </div>
+
+                            <div class="security-item">
+                                <div class="security-info">
+                                    <h4>Two-Factor Authentication</h4>
+                                    <p>Add an extra layer of security</p>
+                                </div>
+                                <button class="btn btn-outline">Enable</button>
+                            </div>
+
+                            <div class="security-item">
+                                <div class="security-info">
+                                    <h4>Login History</h4>
+                                    <p>Review your recent login activity</p>
+                                </div>
+                                <button class="btn btn-outline">View History</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preferences Section -->
+                    <div id="preferencesSection" class="profile-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Preferences</h2>
+                        </div>
+
+                        <div class="preferences-card">
+                            <h4 class="preferences-subtitle">Food Preferences</h4>
+                            
+                            <div class="preference-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" checked>
+                                    <span>Vegetarian Food</span>
+                                </label>
+                            </div>
+                            
+                            <div class="preference-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox">
+                                    <span>Non-Vegetarian Food</span>
+                                </label>
+                            </div>
+
+                            <div class="preference-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox">
+                                    <span>Jain Food</span>
+                                </label>
+                            </div>
+
+                            <h4 class="preferences-subtitle">Notifications</h4>
+
+                            <div class="preference-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" checked>
+                                    <span>Email notifications for new mess near me</span>
+                                </label>
+                            </div>
+
+                            <div class="preference-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" checked>
+                                    <span>Subscription renewal reminders</span>
+                                </label>
+                            </div>
+
+                            <div class="preference-item">
+                                <label class="checkbox-label">
+                                    <input type="checkbox">
+                                    <span>Weekly deals and offers</span>
+                                </label>
+                            </div>
+
+                            <button class="btn btn-primary">Save Preferences</button>
+                        </div>
+                    </div>
+
+                    <!-- My Reviews Section -->
+                    <div id="reviewsSection" class="profile-section">
+                        <div class="section-header">
+                            <h2 class="section-title">My Reviews</h2>
+                            <p class="section-subtitle">You have written 8 reviews</p>
+                        </div>
+
+                        <div class="user-reviews-list">
+                            <!-- Review Item 1 -->
+                            <div class="user-review-card">
+                                <div class="review-header">
+                                    <div class="review-mess-info">
+                                        <h4>Annapurna Mess</h4>
+                                        <p>Reviewed on 10 Feb 2026</p>
+                                    </div>
+                                    <div class="review-rating">
+                                        <span class="stars">★★★★★</span>
+                                        <span class="rating-value">5.0</span>
+                                    </div>
+                                </div>
+                                <p class="review-text">
+                                    Excellent food quality and hygiene. The Gujarati thali reminds me of home cooking. 
+                                    Highly recommend for students looking for healthy meals.
+                                </p>
+                                <div class="review-actions">
+                                    <button class="btn-link" onclick="editReview(1)">Edit</button>
+                                    <button class="btn-link text-danger" onclick="deleteReview(1)">Delete</button>
+                                </div>
+                            </div>
+
+                            <!-- Review Item 2 -->
+                            <div class="user-review-card">
+                                <div class="review-header">
+                                    <div class="review-mess-info">
+                                        <h4>Krishna Mess</h4>
+                                        <p>Reviewed on 5 Feb 2026</p>
+                                    </div>
+                                    <div class="review-rating">
+                                        <span class="stars">★★★★☆</span>
+                                        <span class="rating-value">4.0</span>
+                                    </div>
+                                </div>
+                                <p class="review-text">
+                                    Good food at reasonable prices. Service could be faster during lunch hours.
+                                </p>
+                                <div class="review-actions">
+                                    <button class="btn-link" onclick="editReview(2)">Edit</button>
+                                    <button class="btn-link text-danger" onclick="deleteReview(2)">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

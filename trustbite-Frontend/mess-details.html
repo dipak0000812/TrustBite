@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Details - TrustBite</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dashboard">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="logo-text">TrustBite</span>
+                </a>
+                
+                <div class="nav-actions">
+                    <a href="dashboard.html" class="btn btn-outline">← Back to Dashboard</a>
+                    <div class="user-dropdown">
+                        <button class="user-avatar" onclick="toggleUserMenu()">
+                            <span class="avatar-text" id="userInitials">U</span>
+                        </button>
+                        <div class="dropdown-menu" id="userMenu">
+                            <a href="profile.html" class="dropdown-item">
+                                <span>👤</span> My Profile
+                            </a>
+                            <a href="subscription.html" class="dropdown-item">
+                                <span>📋</span> My Subscriptions
+                            </a>
+                            <a href="#" class="dropdown-item" onclick="logout()">
+                                <span>🚪</span> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mess Details Container -->
+    <div class="mess-details-container">
+        <div class="container">
+            <!-- Image Gallery -->
+            <div class="image-gallery">
+                <div class="main-image">
+                    <img id="mainImage" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Mess Image">
+                    <button class="image-nav image-nav-prev" onclick="prevImage()">❮</button>
+                    <button class="image-nav image-nav-next" onclick="nextImage()">❯</button>
+                </div>
+                <div class="image-thumbnails" id="thumbnails">
+                    <!-- Thumbnails will be injected by JS -->
+                </div>
+            </div>
+
+            <!-- Mess Info Section -->
+            <div class="mess-info-layout">
+                <!-- Left Column - Main Info -->
+                <div class="mess-main-info">
+                    <!-- Header -->
+                    <div class="mess-header">
+                        <div class="mess-title-wrapper">
+                            <h1 class="mess-title" id="messName">Loading...</h1>
+                            <span class="verified-badge" id="verifiedBadge" style="display: none;">
+                                ✓ Verified
+                            </span>
+                        </div>
+                        <p class="mess-location" id="messLocation">
+                            <span class="location-icon">📍</span>
+                            <span id="messAddress">Loading...</span>
+                        </p>
+                        <div class="mess-tags" id="messTags">
+                            <!-- Tags will be injected -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="quick-stats">
+                        <div class="stat-item">
+                            <span class="stat-icon">👥</span>
+                            <div class="stat-content">
+                                <span class="stat-value" id="subscriberCount">0</span>
+                                <span class="stat-label">Active Subscribers</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">📅</span>
+                            <div class="stat-content">
+                                <span class="stat-value" id="experience">0</span>
+                                <span class="stat-label">Years Experience</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">🪑</span>
+                            <div class="stat-content">
+                                <span class="stat-value" id="capacity">0</span>
+                                <span class="stat-label">Total Capacity</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="info-section">
+                        <h3 class="section-heading">About This Mess</h3>
+                        <p class="mess-description" id="messDescription">
+                            Loading description...
+                        </p>
+                    </div>
+
+                    <!-- Weekly Menu -->
+                    <div class="info-section">
+                        <h3 class="section-heading">Weekly Menu</h3>
+                        <div class="menu-table-wrapper">
+                            <table class="menu-table" id="menuTable">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Breakfast</th>
+                                        <th>Lunch</th>
+                                        <th>Dinner</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="menuTableBody">
+                                    <!-- Menu rows will be injected -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Facilities -->
+                    <div class="info-section">
+                        <h3 class="section-heading">Amenities & Facilities</h3>
+                        <div class="facilities-grid" id="facilitiesGrid">
+                            <!-- Facilities will be injected -->
+                        </div>
+                    </div>
+
+                    <!-- Operating Hours -->
+                    <div class="info-section">
+                        <h3 class="section-heading">Operating Hours</h3>
+                        <div class="timing-list" id="timingList">
+                            <!-- Timings will be injected -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews Section -->
+                    <div class="info-section reviews-section">
+                        <div class="section-header-flex">
+                            <h3 class="section-heading">Reviews</h3>
+                            <button class="btn btn-primary" onclick="openReviewModal()">
+                                Write a Review
+                            </button>
+                        </div>
+
+                        <!-- Rating Summary -->
+                        <div class="rating-summary">
+                            <div class="average-rating">
+                                <div class="rating-number" id="avgRating">0.0</div>
+                                <div class="rating-stars" id="avgStars">
+                                    ★★★★★
+                                </div>
+                                <div class="rating-count" id="reviewCount">0 reviews</div>
+                            </div>
+
+                            <div class="rating-breakdown" id="ratingBreakdown">
+                                <!-- Rating bars will be injected -->
+                            </div>
+                        </div>
+
+                        <!-- Review Filters -->
+                        <div class="review-filters">
+                            <button class="filter-chip active" onclick="filterReviews('all')">All</button>
+                            <button class="filter-chip" onclick="filterReviews('verified')">Verified Only</button>
+                            <button class="filter-chip" onclick="filterReviews('photos')">With Photos</button>
+                        </div>
+
+                        <!-- Reviews List -->
+                        <div class="reviews-list" id="reviewsList">
+                            <!-- Review cards will be injected -->
+                        </div>
+
+                        <button class="btn btn-outline btn-block" id="loadMoreReviews" onclick="loadMoreReviews()">
+                            Load More Reviews
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column - Sticky Booking Card -->
+                <div class="mess-sidebar">
+                    <div class="booking-card sticky-card">
+                        <!-- Trust & Hygiene Scores -->
+                        <div class="scores-display">
+                            <div class="score-badge score-large" id="trustScoreCard">
+                                <div class="score-value">0</div>
+                                <div class="score-label">Trust Score</div>
+                            </div>
+                            <div class="score-badge score-large" id="hygieneScoreCard">
+                                <div class="score-value">0</div>
+                                <div class="score-label">Hygiene Score</div>
+                            </div>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="card-rating">
+                            <span class="rating-value">⭐ <span id="cardRating">0.0</span></span>
+                            <span class="rating-text">(<span id="cardReviewCount">0</span> reviews)</span>
+                        </div>
+
+                        <div class="divider-line"></div>
+
+                        <!-- Subscription Plans -->
+                        <div class="subscription-plans">
+                            <h4 class="card-heading">Subscription Plans</h4>
+                            
+                            <label class="plan-option">
+                                <input type="radio" name="plan" value="monthly" checked onchange="updatePrice()">
+                                <div class="plan-details">
+                                    <span class="plan-name">Monthly</span>
+                                    <span class="plan-price" id="monthlyPrice">₹0</span>
+                                </div>
+                            </label>
+
+                            <label class="plan-option">
+                                <input type="radio" name="plan" value="weekly" onchange="updatePrice()">
+                                <div class="plan-details">
+                                    <span class="plan-name">Weekly</span>
+                                    <span class="plan-price" id="weeklyPrice">₹0</span>
+                                </div>
+                            </label>
+
+                            <label class="plan-option">
+                                <input type="radio" name="plan" value="daily" onchange="updatePrice()">
+                                <div class="plan-details">
+                                    <span class="plan-name">Per Meal</span>
+                                    <span class="plan-price" id="dailyPrice">₹0</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Meal Type Selection -->
+                        <div class="meal-selection">
+                            <h4 class="card-heading">Meal Type</h4>
+                            <div class="meal-checkboxes">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="breakfast" onchange="updatePrice()">
+                                    <span>🌅 Breakfast</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="lunch" checked onchange="updatePrice()">
+                                    <span>☀️ Lunch</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="dinner" checked onchange="updatePrice()">
+                                    <span>🌙 Dinner</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Availability -->
+                        <div class="availability-info">
+                            <div class="availability-label">Availability:</div>
+                            <div class="availability-bar">
+                                <div class="availability-fill" id="availabilityFill" style="width: 0%"></div>
+                            </div>
+                            <div class="availability-text" id="availabilityText">
+                                0/0 seats available
+                            </div>
+                        </div>
+
+                        <div class="divider-line"></div>
+
+                        <!-- Total Price -->
+                        <div class="total-price">
+                            <span class="total-label">Total:</span>
+                            <span class="total-amount" id="totalPrice">₹0</span>
+                        </div>
+
+                        <!-- Subscribe Button -->
+                        <button class="btn btn-primary btn-block btn-large" onclick="handleSubscribe()">
+                            Subscribe Now
+                        </button>
+
+                        <div class="divider-line"></div>
+
+                        <!-- Owner Contact -->
+                        <div class="owner-contact">
+                            <h4 class="card-heading">Contact Owner</h4>
+                            <div class="contact-item">
+                                <span class="contact-icon">👤</span>
+                                <span id="ownerName">Owner Name</span>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📞</span>
+                                <a href="tel:+919876543210" id="ownerPhone">+91 98765 43210</a>
+                            </div>
+                            <div class="contact-item">
+                                <span class="contact-icon">📧</span>
+                                <a href="mailto:owner@mess.com" id="ownerEmail">owner@mess.com</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal" id="reviewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Write a Review</h3>
+                <button class="modal-close" onclick="closeReviewModal()">✕</button>
+            </div>
+            
+            <form id="reviewForm" onsubmit="submitReview(event)">
+                <div class="form-group">
+                    <label class="form-label">Overall Rating</label>
+                    <div class="star-rating" id="overallRating">
+                        <span class="star" data-rating="1">☆</span>
+                        <span class="star" data-rating="2">☆</span>
+                        <span class="star" data-rating="3">☆</span>
+                        <span class="star" data-rating="4">☆</span>
+                        <span class="star" data-rating="5">☆</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Detailed Ratings</label>
+                    <div class="detailed-ratings">
+                        <div class="rating-row">
+                            <span>Food Quality:</span>
+                            <div class="star-rating small" data-category="food">
+                                <span class="star" data-rating="1">☆</span>
+                                <span class="star" data-rating="2">☆</span>
+                                <span class="star" data-rating="3">☆</span>
+                                <span class="star" data-rating="4">☆</span>
+                                <span class="star" data-rating="5">☆</span>
+                            </div>
+                        </div>
+                        <div class="rating-row">
+                            <span>Hygiene:</span>
+                            <div class="star-rating small" data-category="hygiene">
+                                <span class="star" data-rating="1">☆</span>
+                                <span class="star" data-rating="2">☆</span>
+                                <span class="star" data-rating="3">☆</span>
+                                <span class="star" data-rating="4">☆</span>
+                                <span class="star" data-rating="5">☆</span>
+                            </div>
+                        </div>
+                        <div class="rating-row">
+                            <span>Service:</span>
+                            <div class="star-rating small" data-category="service">
+                                <span class="star" data-rating="1">☆</span>
+                                <span class="star" data-rating="2">☆</span>
+                                <span class="star" data-rating="3">☆</span>
+                                <span class="star" data-rating="4">☆</span>
+                                <span class="star" data-rating="5">☆</span>
+                            </div>
+                        </div>
+                        <div class="rating-row">
+                            <span>Value for Money:</span>
+                            <div class="star-rating small" data-category="value">
+                                <span class="star" data-rating="1">☆</span>
+                                <span class="star" data-rating="2">☆</span>
+                                <span class="star" data-rating="3">☆</span>
+                                <span class="star" data-rating="4">☆</span>
+                                <span class="star" data-rating="5">☆</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="reviewText" class="form-label">Your Review</label>
+                    <textarea 
+                        id="reviewText" 
+                        class="form-textarea" 
+                        rows="5" 
+                        placeholder="Share your experience..."
+                        required
+                        minlength="50"
+                    ></textarea>
+                    <small class="form-hint">Minimum 50 characters</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="isSubscriber">
+                        <span>I am a current subscriber</span>
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeReviewModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- My Mess Tab - COMPLETE -->
+        <div id="mymessTab" class="owner-tab">
+            <div class="tab-header">
+                <h2>My Mess Details</h2>
+                <button class="btn btn-primary" onclick="toggleEditMode()">
+                    <span id="editBtnText">✏️ Edit Details</span>
+                </button>
+            </div>
+
+            <!-- Mess Info Form -->
+            <div class="mess-form-card">
+                <form id="messDetailsForm">
+                    <!-- Basic Information Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Basic Information</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Mess Name *</label>
+                                <input 
+                                    type="text" 
+                                    id="messName" 
+                                    class="form-input" 
+                                    value="Royal Mess"
+                                    disabled
+                                    required
+                                >
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Contact Number *</label>
+                                <input 
+                                    type="tel" 
+                                    id="messPhone" 
+                                    class="form-input" 
+                                    value="+91 98765 43210"
+                                    disabled
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address *</label>
+                            <input 
+                                type="email" 
+                                id="messEmail" 
+                                class="form-input" 
+                                value="contact@royalmess.com"
+                                disabled
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description *</label>
+                            <textarea 
+                                id="messDescription" 
+                                class="form-textarea" 
+                                rows="4"
+                                disabled
+                                required
+                            >We serve authentic homestyle meals with focus on hygiene and taste. Running since 2018, we have 150+ happy subscribers from nearby colleges.</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Location Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Location Details</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Full Address *</label>
+                            <input 
+                                type="text" 
+                                id="messAddress" 
+                                class="form-input" 
+                                value="Shop 5, Karve Road, Kothrud"
+                                disabled
+                                required
+                            >
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">City *</label>
+                                <input 
+                                    type="text" 
+                                    id="messCity" 
+                                    class="form-input" 
+                                    value="Pune"
+                                    disabled
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">State *</label>
+                                <input 
+                                    type="text" 
+                                    id="messState" 
+                                    class="form-input" 
+                                    value="Maharashtra"
+                                    disabled
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Pincode *</label>
+                                <input 
+                                    type="text" 
+                                    id="messPincode" 
+                                    class="form-input" 
+                                    value="411038"
+                                    disabled
+                                    required
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mess Type Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Mess Type & Meals</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Food Type *</label>
+                            <select id="foodType" class="form-select" disabled required>
+                                <option value="veg" selected>Vegetarian</option>
+                                <option value="non-veg">Non-Vegetarian</option>
+                                <option value="both">Both Veg & Non-Veg</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Meal Types Offered *</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="breakfast" disabled>
+                                    <span>🌅 Breakfast</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="lunch" checked disabled>
+                                    <span>☀️ Lunch</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" value="dinner" checked disabled>
+                                    <span>🌙 Dinner</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Pricing Details</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Monthly Plan (₹) *</label>
+                                <input 
+                                    type="number" 
+                                    id="monthlyPrice" 
+                                    class="form-input" 
+                                    value="3500"
+                                    disabled
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Weekly Plan (₹)</label>
+                                <input 
+                                    type="number" 
+                                    id="weeklyPrice" 
+                                    class="form-input" 
+                                    value="950"
+                                    disabled
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Per Meal (₹)</label>
+                                <input 
+                                    type="number" 
+                                    id="perMealPrice" 
+                                    class="form-input" 
+                                    value="55"
+                                    disabled
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Capacity Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Capacity & Experience</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Total Seating Capacity *</label>
+                                <input 
+                                    type="number" 
+                                    id="messCapacity" 
+                                    class="form-input" 
+                                    value="200"
+                                    disabled
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Years in Business *</label>
+                                <input 
+                                    type="number" 
+                                    id="messExperience" 
+                                    class="form-input" 
+                                    value="10"
+                                    disabled
+                                    required
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Facilities Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Facilities Available</h3>
+                        
+                        <div class="checkbox-grid">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="ac" checked disabled>
+                                <span>❄️ AC Dining</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="wifi" checked disabled>
+                                <span>📶 Free WiFi</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="ro" checked disabled>
+                                <span>💧 RO Water</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="parcel" checked disabled>
+                                <span>📦 Parcel Available</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="sanitized" checked disabled>
+                                <span>🧼 Sanitized</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="wheelchair" checked disabled>
+                                <span>♿ Wheelchair Access</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="parking" disabled>
+                                <span>🅿️ Parking</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="delivery" disabled>
+                                <span>🚗 Home Delivery</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Timings Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Operating Hours</h3>
+                        
+                        <div class="timings-grid">
+                            <div class="timing-row">
+                                <label class="timing-label">Breakfast:</label>
+                                <input type="time" class="form-input" value="08:00" disabled>
+                                <span>to</span>
+                                <input type="time" class="form-input" value="10:00" disabled>
+                            </div>
+
+                            <div class="timing-row">
+                                <label class="timing-label">Lunch:</label>
+                                <input type="time" class="form-input" value="12:00" disabled>
+                                <span>to</span>
+                                <input type="time" class="form-input" value="14:30" disabled>
+                            </div>
+
+                            <div class="timing-row">
+                                <label class="timing-label">Dinner:</label>
+                                <input type="time" class="form-input" value="19:00" disabled>
+                                <span>to</span>
+                                <input type="time" class="form-input" value="22:00" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Images Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">Mess Photos</h3>
+                        <div class="image-upload-area">
+                            <div class="upload-box">
+                                <span class="upload-icon">📷</span>
+                                <p>Click to upload images</p>
+                                <input type="file" id="messImages" accept="image/*" multiple disabled style="display: none;">
+                                <button type="button" class="btn btn-outline" onclick="document.getElementById('messImages').click()" disabled>
+                                    Choose Files
+                                </button>
+                            </div>
+                            <small class="form-hint">Upload up to 5 images (JPG, PNG, max 5MB each)</small>
+                        </div>
+
+                        <!-- Current Images Preview -->
+                        <div class="current-images">
+                            <div class="image-preview">
+                                <img src="https://images.unsplash.com/photo-504674900247-0877df9cc836?w=200" alt="Mess">
+                                <button class="image-remove-btn" disabled>✕</button>
+                            </div>
+                            <div class="image-preview">
+                                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200" alt="Mess">
+                                <button class="image-remove-btn" disabled>✕</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="form-actions" id="formActions" style="display: none;">
+                        <button type="button" class="btn btn-outline" onclick="cancelEdit()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            💾 Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Menu Management Tab - COMPLETE -->
+        <div id="menuTab" class="owner-tab">
+            <div class="tab-header">
+                <h2>Weekly Menu Management</h2>
+                <button class="btn btn-primary" onclick="toggleMenuEdit()">
+                    <span id="menuEditBtnText">✏️ Edit Menu</span>
+                </button>
+            </div>
+
+            <div class="menu-editor-card">
+                <p class="menu-hint">💡 Set your weekly menu to help students know what to expect each day</p>
+
+                <div class="menu-days">
+                    <!-- Monday -->
+                    <div class="menu-day-card">
+                        <div class="menu-day-header">
+                            <h4>Monday</h4>
+                        </div>
+                        <div class="menu-meals">
+                            <div class="menu-meal">
+                                <label>🌅 Breakfast:</label>
+                                <input type="text" class="form-input" value="Poha, Tea" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>☀️ Lunch:</label>
+                                <input type="text" class="form-input" value="Roti, Dal, Rice, Sabji, Salad" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>🌙 Dinner:</label>
+                                <input type="text" class="form-input" value="Roti, Paneer Curry, Rice, Sweet" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tuesday -->
+                    <div class="menu-day-card">
+                        <div class="menu-day-header">
+                            <h4>Tuesday</h4>
+                        </div>
+                        <div class="menu-meals">
+                            <div class="menu-meal">
+                                <label>🌅 Breakfast:</label>
+                                <input type="text" class="form-input" value="Upma, Tea" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>☀️ Lunch:</label>
+                                <input type="text" class="form-input" value="Roti, Sambar, Rice, Sabji" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>🌙 Dinner:</label>
+                                <input type="text" class="form-input" value="Roti, Mix Veg, Rice, Raita" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wednesday -->
+                    <div class="menu-day-card">
+                        <div class="menu-day-header">
+                            <h4>Wednesday</h4>
+                        </div>
+                        <div class="menu-meals">
+                            <div class="menu-meal">
+                                <label>🌅 Breakfast:</label>
+                                <input type="text" class="form-input" value="Paratha, Curd, Tea" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>☀️ Lunch:</label>
+                                <input type="text" class="form-input" value="Roti, Rajma, Rice, Aloo Sabji" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>🌙 Dinner:</label>
+                                <input type="text" class="form-input" value="Roti, Dal Fry, Rice, Papad" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thursday -->
+                    <div class="menu-day-card">
+                        <div class="menu-day-header">
+                            <h4>Thursday</h4>
+                        </div>
+                        <div class="menu-meals">
+                            <div class="menu-meal">
+                                <label>🌅 Breakfast:</label>
+                                <input type="text" class="form-input" value="Idli, Sambar, Tea" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>☀️ Lunch:</label>
+                                <input type="text" class="form-input" value="Roti, Chole, Rice, Bhindi" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>🌙 Dinner:</label>
+                                <input type="text" class="form-input" value="Roti, Kadhi, Rice, Pakoda" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Friday -->
+                    <div class="menu-day-card">
+                        <div class="menu-day-header">
+                            <h4>Friday</h4>
+                        </div>
+                        <div class="menu-meals">
+                            <div class="menu-meal">
+                                <label>🌅 Breakfast:</label>
+                                <input type="text" class="form-input" value="Dosa, Chutney, Tea" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>☀️ Lunch:</label>
+                                <input type="text" class="form-input" value="Roti, Dal Tadka, Rice, Gobi" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>🌙 Dinner:</label>
+                                <input type="text" class="form-input" value="Roti, Paneer Butter Masala, Rice" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Saturday -->
+                    <div class="menu-day-card">
+                        <div class="menu-day-header">
+                            <h4>Saturday</h4>
+                        </div>
+                        <div class="menu-meals">
+                            <div class="menu-meal">
+                                <label>🌅 Breakfast:</label>
+                                <input type="text" class="form-input" value="Poha, Tea" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>☀️ Lunch:</label>
+                                <input type="text" class="form-input" value="Roti, Palak Paneer, Rice, Aloo" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>🌙 Dinner:</label>
+                                <input type="text" class="form-input" value="Roti, Mix Dal, Rice, Gulab Jamun" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sunday -->
+                    <div class="menu-day-card">
+                        <div class="menu-day-header">
+                            <h4>Sunday</h4>
+                        </div>
+                        <div class="menu-meals">
+                            <div class="menu-meal">
+                                <label>🌅 Breakfast:</label>
+                                <input type="text" class="form-input" value="Upma, Tea" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>☀️ Lunch:</label>
+                                <input type="text" class="form-input" value="Puri, Chole, Halwa, Rice" disabled>
+                            </div>
+                            <div class="menu-meal">
+                                <label>🌙 Dinner:</label>
+                                <input type="text" class="form-input" value="Roti, Special Thali, Rice, Kheer" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions" id="menuFormActions" style="display: none; margin-top: 20px;">
+                    <button type="button" class="btn btn-outline" onclick="cancelMenuEdit()">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="saveMenu()">
+                        💾 Save Menu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

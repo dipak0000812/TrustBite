@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Subscriptions - TrustBite</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dashboard">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="logo-text">TrustBite</span>
+                </a>
+                <div class="nav-actions">
+                    <a href="dashboard.html" class="btn btn-outline">Browse Mess</a>
+                    <div class="user-dropdown">
+                        <button class="user-avatar" onclick="toggleUserMenu()">
+                            <span class="avatar-text" id="userInitials">U</span>
+                        </button>
+                        <div class="dropdown-menu" id="userMenu">
+                            <a href="profile.html" class="dropdown-item">👤 My Profile</a>
+                            <a href="subscription.html" class="dropdown-item">📋 My Subscriptions</a>
+                            <a href="#" class="dropdown-item" onclick="logout()">🚪 Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Container -->
+    <div class="page-container">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">My Subscriptions</h1>
+                <p class="page-subtitle">Manage your active and past subscriptions</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('active')">
+                    Active (2)
+                </button>
+                <button class="tab-btn" onclick="switchTab('expired')">
+                    Expired (1)
+                </button>
+            </div>
+
+            <!-- Active Subscriptions -->
+            <div id="activeTab" class="tab-content active">
+                <!-- Subscription Card 1 -->
+                <div class="subscription-card">
+                    <div class="sub-card-header">
+                        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200" alt="Mess" class="sub-card-image">
+                        <div class="sub-card-info">
+                            <h3 class="sub-card-title">Annapurna Mess</h3>
+                            <p class="sub-card-location">📍 Kothrud, Pune</p>
+                            <div class="sub-card-badges">
+                                <span class="badge badge-success">Active</span>
+                                <span class="badge badge-outline">Monthly Plan</span>
+                            </div>
+                        </div>
+                        <div class="sub-card-price">
+                            <div class="price-amount">₹3,200</div>
+                            <div class="price-period">/month</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-card-body">
+                        <div class="sub-info-grid">
+                            <div class="sub-info-item">
+                                <span class="info-label">Plan Type:</span>
+                                <span class="info-value">Lunch + Dinner</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Start Date:</span>
+                                <span class="info-value">01 Feb 2026</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Renewal Date:</span>
+                                <span class="info-value">01 Mar 2026</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Days Left:</span>
+                                <span class="info-value text-success">15 days</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="subscription-progress">
+                            <div class="progress-header">
+                                <span>Subscription Period</span>
+                                <span>50% Complete</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-card-actions">
+                        <button class="btn btn-outline" onclick="viewMessDetails(1)">View Details</button>
+                        <button class="btn btn-outline" onclick="contactOwner(1)">Contact Owner</button>
+                        <button class="btn btn-danger" onclick="cancelSubscription(1)">Cancel Subscription</button>
+                    </div>
+                </div>
+
+                <!-- Subscription Card 2 -->
+                <div class="subscription-card">
+                    <div class="sub-card-header">
+                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200" alt="Mess" class="sub-card-image">
+                        <div class="sub-card-info">
+                            <h3 class="sub-card-title">Krishna Mess</h3>
+                            <p class="sub-card-location">📍 Shivaji Nagar, Pune</p>
+                            <div class="sub-card-badges">
+                                <span class="badge badge-success">Active</span>
+                                <span class="badge badge-outline">Weekly Plan</span>
+                            </div>
+                        </div>
+                        <div class="sub-card-price">
+                            <div class="price-amount">₹850</div>
+                            <div class="price-period">/week</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-card-body">
+                        <div class="sub-info-grid">
+                            <div class="sub-info-item">
+                                <span class="info-label">Plan Type:</span>
+                                <span class="info-value">Lunch Only</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Start Date:</span>
+                                <span class="info-value">10 Feb 2026</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Renewal Date:</span>
+                                <span class="info-value">17 Feb 2026</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Days Left:</span>
+                                <span class="info-value text-warning">3 days</span>
+                            </div>
+                        </div>
+
+                        <div class="subscription-progress">
+                            <div class="progress-header">
+                                <span>Subscription Period</span>
+                                <span>71% Complete</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 71%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-card-actions">
+                        <button class="btn btn-outline" onclick="viewMessDetails(2)">View Details</button>
+                        <button class="btn btn-outline" onclick="contactOwner(2)">Contact Owner</button>
+                        <button class="btn btn-danger" onclick="cancelSubscription(2)">Cancel Subscription</button>
+                    </div>
+                </div>
+
+                <!-- Empty State (if no subscriptions) -->
+                <div class="empty-state" style="display: none;">
+                    <div class="empty-icon">📋</div>
+                    <h3>No Active Subscriptions</h3>
+                    <p>You don't have any active subscriptions yet</p>
+                    <a href="dashboard.html" class="btn btn-primary">Browse Mess Services</a>
+                </div>
+            </div>
+
+            <!-- Expired Subscriptions -->
+            <div id="expiredTab" class="tab-content">
+                <div class="subscription-card subscription-card-expired">
+                    <div class="sub-card-header">
+                        <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200" alt="Mess" class="sub-card-image">
+                        <div class="sub-card-info">
+                            <h3 class="sub-card-title">Sagar Tiffin Service</h3>
+                            <p class="sub-card-location">📍 Aundh, Pune</p>
+                            <div class="sub-card-badges">
+                                <span class="badge badge-secondary">Expired</span>
+                                <span class="badge badge-outline">Monthly Plan</span>
+                            </div>
+                        </div>
+                        <div class="sub-card-price">
+                            <div class="price-amount">₹2,800</div>
+                            <div class="price-period">/month</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-card-body">
+                        <div class="sub-info-grid">
+                            <div class="sub-info-item">
+                                <span class="info-label">Plan Type:</span>
+                                <span class="info-value">Lunch + Dinner</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Subscribed:</span>
+                                <span class="info-value">01 Jan 2026</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Expired On:</span>
+                                <span class="info-value">31 Jan 2026</span>
+                            </div>
+                            <div class="sub-info-item">
+                                <span class="info-label">Status:</span>
+                                <span class="info-value text-secondary">Completed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-card-actions">
+                        <button class="btn btn-outline" onclick="viewMessDetails(3)">View Details</button>
+                        <button class="btn btn-primary" onclick="renewSubscription(3)">Renew Subscription</button>
+                        <button class="btn btn-outline" onclick="writeReview(3)">Write Review</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

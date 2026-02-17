@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustBite - Find Trusted Mess Services Near You</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="logo-text">TrustBite</span>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link active">Home</a>
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#how-it-works" class="nav-link">How It Works</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                </div>
+                
+                <!-- Auth Buttons -->
+                <div class="nav-actions">
+                    <a href="login.html" class="btn btn-outline">Login</a>
+                    <a href="register.html" class="btn btn-primary">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Find Trusted Mess Services Near Your College</h1>
+                <p class="hero-subtitle">Transparent hygiene scores • Verified reviews • Best prices</p>
+                
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <span class="search-icon">📍</span>
+                        <input 
+                            type="text" 
+                            id="locationSearch" 
+                            placeholder="Enter your college or area name"
+                            class="search-input"
+                        >
+                    </div>
+                    <button class="btn btn-primary search-btn" onclick="searchLocation()">
+                        Search
+                    </button>
+                </div>
+                
+                <p class="search-hint">
+                    Popular: <span class="popular-tag">Kothrud</span> 
+                    <span class="popular-tag">Shivaji Nagar</span> 
+                    <span class="popular-tag">Aundh</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose TrustBite?</h2>
+            
+            <div class="feature-grid">
+                <!-- Feature 1 -->
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 class="feature-title">Verified Trust Scores</h3>
+                    <p class="feature-description">
+                        Data-driven scoring based on reviews, hygiene, and complaint resolution
+                    </p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-icon">⭐</div>
+                    <h3 class="feature-title">Authentic Reviews</h3>
+                    <p class="feature-description">
+                        Only from verified subscribers who actually eat there
+                    </p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3 class="feature-title">Compare Prices</h3>
+                    <p class="feature-description">
+                        Find the best meal plans that fit your budget
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Mess Listings -->
+    <section class="featured-mess">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Popular Mess Services</h2>
+                <a href="dashboard.html" class="view-all-link">View All →</a>
+            </div>
+            
+            <div class="mess-grid" id="featuredMessGrid">
+                <!-- Mess cards will be injected by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            
+            <div class="steps-grid">
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Search</h3>
+                    <p class="step-description">Enter your location and find nearby mess services</p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Compare</h3>
+                    <p class="step-description">Check trust scores, menus, and prices</p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Subscribe</h3>
+                    <p class="step-description">Choose your plan and start eating healthy</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Find Your Perfect Mess?</h2>
+                <p class="cta-description">Join 1000+ students finding better meal options</p>
+                <a href="register.html" class="btn btn-primary btn-large">Get Started Free</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <span class="logo-icon">🍽️</span>
+                        <span class="logo-text">TrustBite</span>
+                    </div>
+                    <p class="footer-description">
+                        Making mess food discovery transparent and trustworthy for students.
+                    </p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="dashboard.html">Browse Mess</a></li>
+                        <li><a href="register.html">Sign Up</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-heading">For Owners</h4>
+                    <ul class="footer-links">
+                        <li><a href="register.html">List Your Mess</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Resources</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-heading">Contact</h4>
+                    <ul class="footer-links">
+                        <li>📧 support@trustbite.com</li>
+                        <li>📞 +91 98765 43210</li>
+                        <li>📍 Pune, Maharashtra</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 TrustBite. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - TrustBite</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="logo-text">TrustBite</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Register Container -->
+    <div class="auth-container">
+        <div class="auth-wrapper">
+            <!-- Left Side - Info -->
+            <div class="auth-side auth-info">
+                <div class="auth-info-content">
+                    <h2 class="auth-info-title">Start Your Food Journey</h2>
+                    <p class="auth-info-text">Create an account and discover the best mess services near you</p>
+                    
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <span class="benefit-icon">✓</span>
+                            <span class="benefit-text">Access to 200+ verified mess services</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">✓</span>
+                            <span class="benefit-text">Compare prices and menus easily</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">✓</span>
+                            <span class="benefit-text">Read authentic reviews from students</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">✓</span>
+                            <span class="benefit-text">Get hygiene and trust scores</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Register Form -->
+            <div class="auth-side auth-form">
+                <div class="form-container">
+                    <h2 class="form-title">Create Your Account</h2>
+                    <p class="form-subtitle">Join TrustBite community today</p>
+
+                    <!-- Register Form -->
+                    <form id="registerForm" onsubmit="handleRegister(event)">
+                        <!-- Full Name -->
+                        <div class="form-group">
+                            <label for="fullName" class="form-label">Full Name</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">👤</span>
+                                <input 
+                                    type="text" 
+                                    id="fullName" 
+                                    class="form-input" 
+                                    placeholder="Enter your full name"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="regEmail" class="form-label">Email Address</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">📧</span>
+                                <input 
+                                    type="email" 
+                                    id="regEmail" 
+                                    class="form-input" 
+                                    placeholder="your.email@example.com"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">📞</span>
+                                <input 
+                                    type="tel" 
+                                    id="phone" 
+                                    class="form-input" 
+                                    placeholder="+91 98765 43210"
+                                    pattern="[0-9+\s-]+"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="form-group">
+                            <label for="location" class="form-label">Your Location</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">📍</span>
+                                <input 
+                                    type="text" 
+                                    id="location" 
+                                    class="form-input" 
+                                    placeholder="e.g., Kothrud, Pune"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="form-group">
+                            <label for="role" class="form-label">I am a</label>
+                            <select id="role" class="form-select" required>
+                                <option value="">Select your role</option>
+                                <option value="student">Student</option>
+                                <option value="mess_owner">Mess Owner</option>
+                            </select>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-group">
+                            <label for="regPassword" class="form-label">Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">🔒</span>
+                                <input 
+                                    type="password" 
+                                    id="regPassword" 
+                                    class="form-input" 
+                                    placeholder="Create a strong password"
+                                    minlength="6"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">🔒</span>
+                                <input 
+                                    type="password" 
+                                    id="confirmPassword" 
+                                    class="form-input" 
+                                    placeholder="Re-enter your password"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Terms & Conditions -->
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="acceptTerms" required>
+                                <span>I agree to the <a href="#" class="link-primary">Terms & Conditions</a></span>
+                            </label>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="registerError" class="error-message" style="display: none;"></div>
+
+                        <!-- Register Button -->
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Create Account
+                        </button>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+
+                    <!-- Google Sign Up -->
+                    <button class="btn btn-outline btn-block google-btn">
+                        <span class="google-icon">G</span>
+                        Continue with Google
+                    </button>
+
+                    <!-- Login Link -->
+                    <p class="form-footer">
+                        Already have an account? 
+                        <a href="login.html" class="link-primary">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

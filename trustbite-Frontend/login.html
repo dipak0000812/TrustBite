@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TrustBite</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Simple Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="logo-text">TrustBite</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Container -->
+    <div class="auth-container">
+        <div class="auth-wrapper">
+            <!-- Left Side - Image/Info -->
+<!-- LEFT HERO SIDE -->
+<!-- Left Side - NEW STYLE matching Image 2 -->
+<div class="auth-side auth-info auth-info-new">
+    <!-- Background image with orange overlay -->
+    <div class="auth-overlay"></div>
+    
+    <div class="auth-info-content auth-info-centered">
+        <!-- Logo at top center -->
+        <div class="auth-logo-center">
+            <div class="auth-logo-icon">🍽️</div>
+            <span class="auth-logo-name">TrustBite</span>
+        </div>
+        
+        <!-- Main Text -->
+        <h2 class="auth-info-title-new">
+            Join 1000+ students finding better mess options
+        </h2>
+        <p class="auth-info-subtitle">
+            Discover hygienic, verified, and affordable mess services in your area
+        </p>
+        
+        <!-- Stats at bottom -->
+        <div class="auth-stats auth-stats-new">
+            <div class="stat-item">
+                <span class="stat-number">1000+</span>
+                <span class="stat-label">Active Students</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">200+</span>
+                <span class="stat-label">Verified Mess</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">4.8/5</span>
+                <span class="stat-label">Average Rating</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <!-- Right Side - Login Form -->
+            <div class="auth-side auth-form">
+                <div class="form-container">
+                    <h2 class="form-title">Login to Your Account</h2>
+                    <p class="form-subtitle">Enter your credentials to continue</p>
+
+                    <!-- Role Selection Tabs (NEW) -->
+                    <div class="role-tabs">
+                        <button class="role-tab active" onclick="switchRole('student')" data-role="student">
+                            👤 Student
+                        </button>
+                        <button class="role-tab" onclick="switchRole('owner')" data-role="owner">
+                            🏪 Owner
+                        </button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <!-- Hidden Role Field -->
+                        <input type="hidden" id="loginRole" value="student">
+
+                        <!-- Email Field -->
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">📧</span>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    class="form-input" 
+                                    placeholder="your.email@example.com"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-wrapper">
+                                <span class="input-icon">🔒</span>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    class="form-input" 
+                                    placeholder="Enter your password"
+                                    required
+                                >
+                                <button type="button" class="toggle-password" onclick="togglePassword()">
+                                    👁️
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="form-extras">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="rememberMe">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="#" class="forgot-link">Forgot Password?</a>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="loginError" class="error-message" style="display: none;"></div>
+
+                        <!-- Login Button -->
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Login
+                        </button>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+
+                    <!-- Google Login -->
+                    <button class="btn btn-outline btn-block google-btn">
+                        <span class="google-icon">G</span>
+                        Continue with Google
+                    </button>
+
+                    <!-- Sign Up Link -->
+                    <p class="form-footer">
+                        Don't have an account? 
+                        <a href="register.html" class="link-primary">Sign Up</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

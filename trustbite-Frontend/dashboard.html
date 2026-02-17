@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TrustBite</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-dashboard">
+        <div class="container">
+            <div class="nav-content">
+                <!-- Logo -->
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🍽️</span>
+                    <span class="logo-text">TrustBite</span>
+                </a>
+                
+                <!-- Search Bar in Navbar -->
+                <div class="nav-search">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        id="navSearchInput" 
+                        placeholder="Search mess services..."
+                        class="nav-search-input"
+                        onkeyup="filterMess()"
+                    >
+                </div>
+                
+                <!-- Right Side Items -->
+                <div class="nav-actions">
+                    <button class="icon-btn" title="Notifications">
+                        🔔
+                        <span class="notification-badge">3</span>
+                    </button>
+                    
+                    <!-- User Profile Dropdown -->
+                    <div class="user-dropdown">
+                        <button class="user-avatar" onclick="toggleUserMenu()">
+                            <span class="avatar-text" id="userInitials">U</span>
+                        </button>
+                        
+                        <div class="dropdown-menu" id="userMenu">
+                            <div class="dropdown-header">
+                                <p class="dropdown-name" id="userName">User Name</p>
+                                <p class="dropdown-email" id="userEmail">user@email.com</p>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="profile.html" class="dropdown-item">
+                                <span>👤</span> My Profile
+                            </a>
+                            <a href="subscription.html" class="dropdown-item">
+                                <span>📋</span> My Subscriptions
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <span>⚙️</span> Settings
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" onclick="logout()">
+                                <span>🚪</span> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-layout">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-header">
+                    <h3>Filters</h3>
+                    <button class="btn-link" onclick="clearFilters()">Clear All</button>
+                </div>
+
+                <!-- Location Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Location</h4>
+                    <select id="locationFilter" class="filter-select" onchange="applyFilters()">
+                        <option value="all">All Areas</option>
+                        <option value="kothrud">Kothrud</option>
+                        <option value="shivaji-nagar">Shivaji Nagar</option>
+                        <option value="aundh">Aundh</option>
+                        <option value="karve-nagar">Karve Nagar</option>
+                        <option value="pimpri">Pimpri</option>
+                    </select>
+                </div>
+
+                <!-- Distance Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Distance</h4>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="distance" value="all" checked onchange="applyFilters()">
+                            <span>All</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="distance" value="1" onchange="applyFilters()">
+                            <span>Within 1 km</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="distance" value="2" onchange="applyFilters()">
+                            <span>Within 2 km</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="distance" value="5" onchange="applyFilters()">
+                            <span>Within 5 km</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Food Type Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Food Type</h4>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="veg" onchange="applyFilters()">
+                            <span>🥗 Vegetarian</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="non-veg" onchange="applyFilters()">
+                            <span>🍗 Non-Vegetarian</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="both" onchange="applyFilters()">
+                            <span>🍽️ Both</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Meal Type Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Meal Type</h4>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="breakfast" onchange="applyFilters()">
+                            <span>🌅 Breakfast</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="lunch" onchange="applyFilters()">
+                            <span>☀️ Lunch</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="dinner" onchange="applyFilters()">
+                            <span>🌙 Dinner</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Price Range Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Monthly Price Range</h4>
+                    <div class="range-wrapper">
+                        <input 
+                            type="range" 
+                            id="priceRange" 
+                            min="2000" 
+                            max="6000" 
+                            value="6000" 
+                            step="500"
+                            class="range-slider"
+                            oninput="updatePriceLabel(this.value)"
+                            onchange="applyFilters()"
+                        >
+                        <div class="range-labels">
+                            <span>₹2,000</span>
+                            <span id="priceLabel">₹6,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Score Filter -->
+                <div class="filter-section">
+                    <h4 class="filter-title">Minimum Trust Score</h4>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="trustScore" value="0" checked onchange="applyFilters()">
+                            <span>All</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="trustScore" value="80" onchange="applyFilters()">
+                            <span>80+ (Excellent)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="trustScore" value="60" onchange="applyFilters()">
+                            <span>60+ (Good)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Verified Only Filter -->
+                <div class="filter-section">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="verifiedOnly" onchange="applyFilters()">
+                        <span>✓ Verified Mess Only</span>
+                    </label>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Results Header -->
+            <div class="results-header">
+                <div class="results-info">
+                    <h2 class="results-title">
+                        <span id="resultsCount">0</span> mess services found
+                    </h2>
+                    <p class="results-subtitle" id="resultsLocation">near you</p>
+                </div>
+                
+                <div class="sort-wrapper">
+                    <label for="sortBy">Sort by:</label>
+                    <select id="sortBy" class="sort-select" onchange="sortMess()">
+                        <option value="trust-desc">Trust Score (High to Low)</option>
+                        <option value="trust-asc">Trust Score (Low to High)</option>
+                        <option value="price-asc">Price (Low to High)</option>
+                        <option value="price-desc">Price (High to Low)</option>
+                        <option value="rating-desc">Rating (High to Low)</option>
+                        <option value="distance-asc">Distance (Near to Far)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading mess services...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">🔍</div>
+                <h3>No mess services found</h3>
+                <p>Try adjusting your filters or search in a different area</p>
+                <button class="btn btn-primary" onclick="clearFilters()">Clear Filters</button>
+            </div>
+
+            <!-- Mess Cards Grid -->
+            <div class="mess-grid" id="messGrid">
+                <!-- Mess cards will be dynamically inserted here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
