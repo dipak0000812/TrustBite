@@ -1,247 +1,268 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, ShieldCheck, MapPin, Info, ArrowLeft, Heart, Share2, ClipboardList, Utensils, Award } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Star, ShieldCheck, MapPin, ArrowLeft, Heart, Utensils, ClipboardList, Loader2, Send, Award } from 'lucide-react';
 import useStore from '../store/useStore';
+import { messService } from '../services/messService';
+import { reviewService } from '../services/reviewService';
+import { favouriteService } from '../services/favouriteService';
 
 const MessDetailPage = () => {
   const { id } = useParams();
-  const { favourites, toggleFavourite } = useStore();
-  const isFavourite = favourites.includes(parseInt(id));
+  const { isAuthenticated, user } = useStore();
+  const [mess, setMess] = useState(null);
+  const [menu, setMenu] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isFav, setIsFav] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
 
-  // Dummy Detail Data
-  const mess = {
-    id: parseInt(id),
-    name: "Annapurna Mess",
-    avg_rating: 4.8,
-    total_reviews: 156,
-    city: "R.C. Patel Campus, Shirpur",
-    monthly_price: 3200,
-    food_type: "veg",
-    trust_score: 98,
-    hygiene_score: 4.5,
-    description: "Premium quality home-style vegetarian meals served with love. We prioritize cleanliness and consistent taste since 2012.",
-    images: [
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c",
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd",
-      "https://images.unsplash.com/photo-1490645935967-10de6ba17061"
-    ],
-    menu: [
-      { day: "Monday", breakfast: "Poha", lunch: "Dal, Baati, Churma", dinner: "Paneer Masala, Roti" },
-      { day: "Tuesday", breakfast: "Upma", lunch: "Mix Veg, Dal, Rice", dinner: "Sev Bhaji, Jowar Bhakar" },
-      { day: "Wednesday", breakfast: "Paratha", lunch: "Chole Bhature", dinner: "Baingan Bharta, Roti" },
-      { day: "Thursday", breakfast: "Medu Vada", lunch: "Kadhi Khichdi", dinner: "Aloo Gobhi, Roti" },
-      { day: "Friday", breakfast: "Misal Pav", lunch: "Veg Pulao, Raita", dinner: "Matar Paneer, Roti" },
-      { day: "Saturday", breakfast: "Idli", lunch: "Maharashtrian Thali", dinner: "Shev Bhaji, Roti" },
-      { day: "Sunday", breakfast: "Puri Bhaji", lunch: "Special Thali", dinner: "Light Dinner/Khichdi" }
-    ],
-    reviews: [
-      { id: 1, user: "Rahul S.", rating: 5, comment: "Best mess for students! Very clean and food feels like home.", date: "2 days ago" },
-      { id: 2, user: "Sneha P.", rating: 4, comment: "Love the Sunday specials. Hygiene is definitely 5/5.", date: "1 week ago" }
-    ]
+  // Review form
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [reviewMsg, setReviewMsg] = useState('');
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [messData, menuData, reviewData] = await Promise.all([
+          messService.getById(id),
+          messService.getMenu(id),
+          reviewService.getMessReviews(id),
+        ]);
+        setMess(messData);
+        setMenu(menuData);
+        setReviews(reviewData);
+
+        if (isAuthenticated && user?.role === 'student') {
+          const [favCheck, revCheck] = await Promise.allSettled([
+            favouriteService.check(id),
+            reviewService.hasReviewed(id),
+          ]);
+          if (favCheck.status === 'fulfilled') setIsFav(favCheck.value);
+          if (revCheck.status === 'fulfilled') setHasReviewed(revCheck.value);
+        }
+      } catch (e) { console.error(e); }
+      setLoading(false);
+    };
+    load();
+  }, [id, isAuthenticated]);
+
+  const toggleFav = async () => {
+    if (!isAuthenticated) return;
+    try {
+      if (isFav) { await favouriteService.remove(id); setIsFav(false); }
+      else { await favouriteService.add(id); setIsFav(true); }
+    } catch (e) { console.error(e); }
   };
 
-  return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
-      {/* Top Bar / Images */}
-      <section className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link to="/discovery" className="inline-flex items-center gap-2 text-sm font-bold text-neutral-500 hover:text-brand transition-colors mb-6">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Discovery
-          </Link>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 rounded-[40px] overflow-hidden">
-            <div className="aspect-[16/10] overflow-hidden group">
-              <img src={mess.images[0]} alt={mess.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="aspect-square overflow-hidden group">
-                <img src={mess.images[1]} alt={mess.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-              </div>
-              <div className="aspect-square overflow-hidden group">
-                <img src={mess.images[2]} alt={mess.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+  const submitReview = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setReviewMsg('');
+    try {
+      const newReview = await reviewService.addReview(id, {
+        rating: reviewForm.rating,
+        comment: reviewForm.comment || null,
+      });
+      setReviews([newReview, ...reviews]);
+      setHasReviewed(true);
+      setReviewMsg('Review submitted successfully!');
+      // Refresh mess to get updated avg_rating
+      const updated = await messService.getById(id);
+      setMess(updated);
+    } catch (e) {
+      setReviewMsg(e.response?.data?.detail || 'Failed to submit review');
+    }
+    setSubmitting(false);
+  };
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center bg-slate-50 pt-20"><Loader2 className="w-8 h-8 animate-spin text-orange-500" /></div>;
+  }
+  if (!mess) {
+    return <div className="min-h-screen flex items-center justify-center bg-slate-50 pt-20"><p className="text-slate-500 font-medium">Mess not found</p></div>;
+  }
+
+  const mealTypes = [...new Set(menu.map(m => m.meal_type))];
+
+  return (
+    <div className="min-h-screen bg-slate-50 pb-20 pt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <Link to="/discover" className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-orange-500 transition-colors mb-8">
+          <ArrowLeft className="w-4 h-4" /> Back to Discovery
+        </Link>
+
         <div className="flex flex-col lg:flex-row gap-12">
-          
-          {/* Left: Info */}
+          {/* Left */}
           <div className="flex-1">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h1 className="text-4xl sm:text-5xl font-extrabold text-neutral-900 mb-4">{mess.name}</h1>
-                <div className="flex flex-wrap items-center gap-4 text-neutral-500 font-medium">
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-brand" />
-                    {mess.city}
-                  </div>
-                  <div className="w-1.5 h-1.5 bg-neutral-200 rounded-full"></div>
-                  <div className="flex items-center gap-1.5">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    {mess.avg_rating} ({mess.total_reviews} reviews)
-                  </div>
-                  <div className="w-1.5 h-1.5 bg-neutral-200 rounded-full"></div>
-                  <div className="uppercase tracking-widest text-[10px] font-bold border border-neutral-200 px-2 py-0.5 rounded">
-                    {mess.food_type}
-                  </div>
+                <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  className="text-3xl sm:text-4xl font-black text-slate-900 mb-3">{mess.name}</motion.h1>
+                <div className="flex flex-wrap items-center gap-3 text-slate-500 font-medium text-sm">
+                  <span className="flex items-center gap-1"><MapPin className="w-4 h-4 text-orange-500" /> {mess.address}, {mess.city}</span>
+                  <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                  <span className="flex items-center gap-1"><Star className="w-4 h-4 text-amber-500 fill-current" /> {Number(mess.avg_rating).toFixed(1)} ({mess.total_reviews} reviews)</span>
+                  <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest border border-slate-200 px-2 py-0.5 rounded">{mess.is_veg ? '🟢 Veg' : '🔴 Non-Veg'}</span>
                 </div>
               </div>
-              
-              <div className="flex gap-3">
-                <button className="p-3 bg-white rounded-2xl border border-neutral-100 shadow-sm hover:bg-neutral-50 transition-colors">
-                  <Share2 className="w-5 h-5 text-neutral-600" />
+              {isAuthenticated && user?.role === 'student' && (
+                <button onClick={toggleFav}
+                  className={`p-3 rounded-2xl border transition-all ${isFav ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20' : 'bg-white border-slate-100 text-slate-600 hover:border-orange-200'}`}>
+                  <Heart className={`w-5 h-5 ${isFav ? 'fill-current' : ''}`} />
                 </button>
-                <button 
-                  onClick={() => toggleFavourite(mess.id)}
-                  className={`p-3 rounded-2xl border transition-all ${
-                    isFavourite ? 'bg-brand border-brand text-white shadow-lg shadow-brand/20' : 'bg-white border-neutral-100 text-neutral-600'
-                  }`}
-                >
-                  <Heart className={`w-5 h-5 ${isFavourite ? 'fill-current' : ''}`} />
-                </button>
+              )}
+            </div>
+
+            {mess.description && <p className="text-lg text-slate-500 leading-relaxed mb-10">{mess.description}</p>}
+
+            {/* Scores */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+              <div className="bg-emerald-50 p-5 rounded-3xl border border-emerald-100 flex items-center gap-4">
+                <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-emerald-500/20">
+                  {mess.trust_score ? Number(mess.trust_score).toFixed(1) : '--'}
+                </div>
+                <div><h3 className="font-bold text-slate-900 text-sm flex items-center gap-1"><Award className="w-3.5 h-3.5 text-emerald-500" /> Trust Score</h3></div>
+              </div>
+              <div className="bg-orange-50 p-5 rounded-3xl border border-orange-100 flex items-center gap-4">
+                <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-orange-500/20">
+                  {mess.hygiene_score ? Number(mess.hygiene_score).toFixed(1) : '--'}
+                </div>
+                <div><h3 className="font-bold text-slate-900 text-sm flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-orange-500" /> Hygiene</h3></div>
+              </div>
+              <div className="bg-blue-50 p-5 rounded-3xl border border-blue-100 flex items-center gap-4">
+                <div className="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-blue-500/20">
+                  ₹{Number(mess.price_per_meal).toFixed(0)}
+                </div>
+                <div><h3 className="font-bold text-slate-900 text-sm">Per Meal</h3></div>
               </div>
             </div>
 
-            <p className="text-lg text-neutral-500 leading-relaxed mb-12">
-              {mess.description}
-            </p>
+            {/* Menu */}
+            {menu.length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-slate-900 rounded-xl"><Utensils className="w-5 h-5 text-white" /></div>
+                  <h2 className="text-xl font-bold text-slate-900">Menu ({menu.length} items)</h2>
+                </div>
+                <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden">
+                  {mealTypes.map(type => (
+                    <div key={type}>
+                      <div className="bg-slate-50 px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest">{type}</div>
+                      {menu.filter(m => m.meal_type === type).map(item => (
+                        <div key={item.id} className="px-6 py-4 border-b border-slate-50 flex justify-between items-center hover:bg-slate-50/50 transition-colors">
+                          <div>
+                            <span className="font-bold text-slate-900">{item.name}</span>
+                            {item.description && <p className="text-xs text-slate-400 mt-0.5">{item.description}</p>}
+                          </div>
+                          <div className="flex items-center gap-3 text-sm">
+                            <span className={`w-2 h-2 rounded-full ${item.is_veg ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                            {item.price && <span className="font-bold text-slate-700">₹{Number(item.price).toFixed(0)}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            {/* Scores Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-16">
-              <div className="bg-trust-light p-6 rounded-3xl border border-trust/10 flex items-center gap-6 group hover:border-trust/30 transition-colors">
-                <div className="w-16 h-16 bg-trust rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-trust/20 group-hover:scale-110 transition-transform">
-                  {mess.trust_score}
-                </div>
-                <div>
-                  <h3 className="font-bold text-neutral-900 flex items-center gap-2">
-                    <Award className="w-4 h-4 text-trust" />
-                    Trust Score
-                  </h3>
-                  <p className="text-sm text-neutral-500">Based on consistency & longevity</p>
-                </div>
-              </div>
-              <div className="bg-brand-light p-6 rounded-3xl border border-brand/10 flex items-center gap-6 group hover:border-brand/30 transition-colors">
-                <div className="w-16 h-16 bg-brand rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-brand/20 group-hover:scale-110 transition-transform">
-                  {mess.hygiene_score}
-                </div>
-                <div>
-                  <h3 className="font-bold text-neutral-900 flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-brand" />
-                    Hygiene Score
-                  </h3>
-                  <p className="text-sm text-neutral-500">Verified by local audits</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Weekly Menu Table */}
-            <div className="mb-16">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2.5 bg-neutral-900 rounded-xl">
-                  <Utensils className="w-6 h-6 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-neutral-900">Weekly Menu</h2>
-              </div>
-              <div className="bg-white rounded-[32px] border border-neutral-100 shadow-sm overflow-hidden overflow-x-auto">
-                <table className="w-full text-left min-w-[600px]">
-                  <thead className="bg-neutral-50">
-                    <tr>
-                      <th className="px-6 py-4 text-xs font-bold text-neutral-400 uppercase tracking-widest text-center">Day</th>
-                      <th className="px-6 py-4 text-xs font-bold text-neutral-400 uppercase tracking-widest">Breakfast</th>
-                      <th className="px-6 py-4 text-xs font-bold text-neutral-400 uppercase tracking-widest">Lunch</th>
-                      <th className="px-6 py-4 text-xs font-bold text-neutral-400 uppercase tracking-widest">Dinner</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-50">
-                    {mess.menu.map((m, idx) => (
-                      <tr key={idx} className="hover:bg-neutral-50/50 transition-colors">
-                        <td className="px-6 py-5 text-sm font-bold text-neutral-900 text-center">{m.day}</td>
-                        <td className="px-6 py-5 text-sm text-neutral-500 font-medium">{m.breakfast}</td>
-                        <td className="px-6 py-5 text-sm text-neutral-500 font-medium">{m.lunch}</td>
-                        <td className="px-6 py-5 text-sm text-neutral-500 font-medium">{m.dinner}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Reviews Section */}
+            {/* Reviews */}
             <div>
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-neutral-900 rounded-xl">
-                    <ClipboardList className="w-6 h-6 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-neutral-900">Student Reviews</h2>
-                </div>
-                <button className="text-brand font-bold text-sm">See all reviews</button>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-slate-900 rounded-xl"><ClipboardList className="w-5 h-5 text-white" /></div>
+                <h2 className="text-xl font-bold text-slate-900">Reviews ({reviews.length})</h2>
               </div>
-              <div className="space-y-6">
-                {mess.reviews.map(rev => (
-                  <div key={rev.id} className="bg-white p-6 rounded-3xl border border-neutral-100">
-                    <div className="flex justify-between items-start mb-3">
+
+              {/* Review Form */}
+              {isAuthenticated && user?.role === 'student' && !hasReviewed && (
+                <form onSubmit={submitReview} className="bg-white p-6 rounded-3xl border border-slate-100 mb-6">
+                  <h3 className="font-bold text-slate-900 mb-4">Write a Review</h3>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm font-medium text-slate-500 mr-2">Rating:</span>
+                    {[1, 2, 3, 4, 5].map(r => (
+                      <button key={r} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: r })}>
+                        <Star className={`w-6 h-6 transition-colors ${r <= reviewForm.rating ? 'text-amber-500 fill-current' : 'text-slate-200'}`} />
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    value={reviewForm.comment}
+                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    placeholder="Share your experience..."
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium resize-none h-24 outline-none focus:ring-2 focus:ring-orange-500/20"
+                  />
+                  {reviewMsg && <p className={`text-sm mt-2 font-medium ${reviewMsg.includes('success') ? 'text-emerald-600' : 'text-red-500'}`}>{reviewMsg}</p>}
+                  <button type="submit" disabled={submitting}
+                    className="mt-4 bg-orange-500 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-colors disabled:opacity-70">
+                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    Submit Review
+                  </button>
+                </form>
+              )}
+
+              <div className="space-y-4">
+                {reviews.map(rev => (
+                  <div key={rev.id} className="bg-white p-5 rounded-3xl border border-slate-100">
+                    <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center font-bold text-neutral-500">
-                          {rev.user[0]}
+                        <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm text-slate-500">
+                          {(rev.student_name || 'A')[0]}
                         </div>
                         <div>
-                          <p className="font-bold text-neutral-900">{rev.user}</p>
-                          <p className="text-xs text-neutral-400 font-medium">{rev.date}</p>
+                          <p className="font-bold text-slate-900 text-sm">{rev.student_name || 'Anonymous'}</p>
+                          <p className="text-[10px] text-slate-400">{new Date(rev.created_at).toLocaleDateString()}</p>
                         </div>
                       </div>
                       <div className="flex gap-0.5">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'text-yellow-500 fill-current' : 'text-neutral-200'}`} />
+                          <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'text-amber-500 fill-current' : 'text-slate-200'}`} />
                         ))}
                       </div>
                     </div>
-                    <p className="text-neutral-600 font-medium leading-relaxed">{rev.comment}</p>
+                    {rev.comment && <p className="text-sm text-slate-600 font-medium">{rev.comment}</p>}
                   </div>
                 ))}
+                {reviews.length === 0 && (
+                  <div className="bg-white rounded-3xl p-8 text-center border border-slate-100">
+                    <p className="text-slate-400 font-medium">No reviews yet. Be the first!</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Right: Sticky Booking/Price Card */}
-          <div className="w-full lg:w-96">
-            <div className="sticky top-28 bg-white p-8 rounded-[40px] border border-neutral-100 shadow-premium">
+          {/* Right: Sticky Info Card */}
+          <div className="w-full lg:w-80">
+            <div className="sticky top-28 bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/40">
               <div className="flex justify-between items-center mb-6">
-                <span className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Monthly Subscription</span>
-                <span className="text-3xl font-black text-brand">₹{mess.monthly_price}</span>
+                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Per Meal</span>
+                <span className="text-3xl font-black text-orange-500">₹{Number(mess.price_per_meal).toFixed(0)}</span>
               </div>
-              
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center justify-between text-sm py-3 border-b border-neutral-50">
-                  <span className="text-neutral-500 font-medium">Daily Meals</span>
-                  <span className="text-neutral-900 font-bold">Breakfast, Lunch, Dinner</span>
+              <div className="space-y-3 mb-8 text-sm">
+                <div className="flex justify-between py-2 border-b border-slate-50">
+                  <span className="text-slate-500">Breakfast</span>
+                  <span className="font-bold text-slate-900">{mess.serves_breakfast ? '✅' : '❌'}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm py-3 border-b border-neutral-50">
-                  <span className="text-neutral-500 font-medium">Sunday Specials</span>
-                  <span className="text-neutral-900 font-bold">Yes (Full Meal)</span>
+                <div className="flex justify-between py-2 border-b border-slate-50">
+                  <span className="text-slate-500">Lunch</span>
+                  <span className="font-bold text-slate-900">{mess.serves_lunch ? '✅' : '❌'}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm py-3">
-                  <span className="text-neutral-500 font-medium">Home Delivery</span>
-                  <span className="text-neutral-900 font-bold text-brand">Not Available</span>
+                <div className="flex justify-between py-2 border-b border-slate-50">
+                  <span className="text-slate-500">Dinner</span>
+                  <span className="font-bold text-slate-900">{mess.serves_dinner ? '✅' : '❌'}</span>
+                </div>
+                <div className="flex justify-between py-2">
+                  <span className="text-slate-500">FSSAI Verified</span>
+                  <span className="font-bold">{mess.is_fssai_verified ? <span className="text-emerald-500">✅ Yes</span> : <span className="text-slate-400">No</span>}</span>
                 </div>
               </div>
-
-              <button className="w-full bg-neutral-900 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black transition-all transform active:scale-95 mb-4 shadow-xl shadow-neutral-200">
-                Contact Owner
-              </button>
-              <button className="w-full bg-white border-2 border-neutral-100 text-neutral-900 py-5 rounded-2xl font-bold hover:bg-neutral-50 transition-all flex items-center justify-center gap-2">
-                <Info className="w-5 h-5" />
-                Inquiry Details
-              </button>
-              
-              <p className="text-[10px] text-neutral-400 text-center mt-6 uppercase font-bold tracking-widest leading-relaxed px-4">
-                TrustBite ensures all scores are verified. Use of this platform implies agreement with student guidelines.
-              </p>
+              <div className="text-[10px] text-slate-400 text-center uppercase font-bold tracking-widest leading-relaxed">
+                TrustBite ensures all scores are verified.
+              </div>
             </div>
           </div>
         </div>
