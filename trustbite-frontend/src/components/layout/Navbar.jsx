@@ -1,12 +1,29 @@
 import { motion } from 'framer-motion';
 import { useScrolled } from '../../hooks/useScrolled';
-import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, User, LogOut, LayoutDashboard, Heart, ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import useStore from '../../store/useStore';
 
 export default function Navbar() {
   const scrolled = useScrolled();
   const [open, setOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useStore();
+  const navigate = useNavigate();
+  const dropRef = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (dropRef.current && !dropRef.current.contains(e.target)) setDropdownOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    setDropdownOpen(false);
+    navigate('/');
+  };
 
   return (
     <motion.nav
@@ -34,31 +51,84 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <div className='hidden md:flex items-center gap-8'>
-            {['Discover', 'How It Works', 'Trust Scores', 'About'].map(item => (
-              <a key={item} href='#'
+            {[
+              { label: 'Discover', to: '/discover' },
+              { label: 'How It Works', to: '/#how-it-works' },
+            ].map(item => (
+              <Link key={item.label} to={item.to}
                 className={`text-sm font-bold tracking-tight transition-all duration-300 hover:scale-105 ${
-                  scrolled 
-                    ? 'text-slate-600 hover:text-orange-500' 
+                  scrolled
+                    ? 'text-slate-600 hover:text-orange-500'
                     : 'text-white/90 hover:text-white'
                 }`}
-              >{item}</a>
+              >{item.label}</Link>
             ))}
           </div>
 
           {/* CTA Group */}
           <div className='hidden md:flex items-center gap-4'>
-            <button className={`text-sm font-bold transition-all duration-300 hover:opacity-80 active:scale-95 ${ 
-              scrolled ? 'text-slate-900' : 'text-white' 
-            }`}>
-              Sign In
-            </button>
-            <Link to='/discover' className={`text-sm font-black px-6 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg ${
-              scrolled
-                ? 'bg-orange-500 text-white shadow-orange-500/20 hover:shadow-orange-500/40'
-                : 'bg-black text-white shadow-black/20 hover:shadow-black/40'
-            }`}>
-              Find a Mess
-            </Link>
+            {isAuthenticated ? (
+              <div className="relative" ref={dropRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className={`flex items-center gap-2 text-sm font-bold transition-all duration-300 px-3 py-2 rounded-full ${
+                    scrolled ? 'text-slate-700 hover:bg-slate-50' : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                    {user?.full_name?.[0] || 'U'}
+                  </div>
+                  <span className="max-w-[120px] truncate">{user?.full_name?.split(' ')[0] || 'User'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {dropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 py-2 overflow-hidden"
+                  >
+                    <div className="px-4 py-3 border-b border-slate-50">
+                      <p className="font-bold text-slate-900 text-sm truncate">{user?.full_name}</p>
+                      <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+                      <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-widest text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">{user?.role}</span>
+                    </div>
+                    <Link to="/dashboard" onClick={() => setDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                      <LayoutDashboard className="w-4 h-4 text-slate-400" /> Dashboard
+                    </Link>
+                    {user?.role === 'student' && (
+                      <Link to="/favourites" onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                        <Heart className="w-4 h-4 text-slate-400" /> Favourites
+                      </Link>
+                    )}
+                    {user?.role === 'admin' && (
+                      <Link to="/admin" onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                        <User className="w-4 h-4 text-slate-400" /> Admin Panel
+                      </Link>
+                    )}
+                    <button onClick={handleLogout}
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors w-full">
+                      <LogOut className="w-4 h-4" /> Log Out
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link to="/login" className={`text-sm font-bold transition-all duration-300 hover:opacity-80 active:scale-95 ${
+                  scrolled ? 'text-slate-900' : 'text-white'
+                }`}>Sign In</Link>
+                <Link to='/discover' className={`text-sm font-black px-6 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg ${
+                  scrolled
+                    ? 'bg-orange-500 text-white shadow-orange-500/20 hover:shadow-orange-500/40'
+                    : 'bg-black text-white shadow-black/20 hover:shadow-black/40'
+                }`}>Find a Mess</Link>
+              </>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -71,11 +141,20 @@ export default function Navbar() {
       {/* Mobile menu */}
       {open && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          className='md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-100 px-6 py-4 flex flex-col gap-4 shadow-xl'>
-          {['Discover', 'How It Works', 'Trust Scores', 'About'].map(item => (
-            <a key={item} href='#' className='text-slate-700 font-bold py-1 hover:text-orange-500 transition-colors'>{item}</a>
-          ))}
-          <Link to='/discover' className='bg-orange-500 text-white font-bold px-5 py-3 rounded-full text-center shadow-lg shadow-orange-500/20 active:scale-95 transition-transform'>Find a Mess</Link>
+          className='md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-100 px-6 py-4 flex flex-col gap-3 shadow-xl'>
+          <Link to='/discover' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500 transition-colors'>Discover</Link>
+          {isAuthenticated ? (
+            <>
+              <Link to='/dashboard' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500'>Dashboard</Link>
+              {user?.role === 'student' && <Link to='/favourites' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2'>Favourites</Link>}
+              <button onClick={() => { handleLogout(); setOpen(false); }} className='text-red-500 font-bold py-2 text-left'>Log Out</button>
+            </>
+          ) : (
+            <>
+              <Link to='/login' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2'>Sign In</Link>
+              <Link to='/register' onClick={() => setOpen(false)} className='bg-orange-500 text-white font-bold px-5 py-3 rounded-full text-center shadow-lg shadow-orange-500/20'>Get Started</Link>
+            </>
+          )}
         </motion.div>
       )}
     </motion.nav>
