@@ -1,55 +1,147 @@
-const TESTIMONIALS = [
-  { name:'Aryan Mehta', college:'MIT Pune', rating:5, text:'TrustBite completely changed how I find food near my hostel. The hygiene scores are the real deal — I check them before every new mess.' },
-  { name:'Priya Nair', college:'Symbiosis, Pune', rating:5, text:'Finally an app that shows me actual hygiene data and not just star ratings. Found my go-to mess in 5 minutes. Absolutely love it!' },
-  { name:'Rohit Sharma', college:'VIT Pune', rating:4, text:'The AI suggestions are surprisingly accurate. It knew I wanted cheap South Indian and nailed it with 3 perfect suggestions.' },
-  { name:'Sneha Kulkarni', college:'COEP Pune', rating:5, text:'As a girl who moves between PGs, TrustBite is my safety net for food. Verified badges and hygiene scores give me real confidence.' },
-  { name:'Kiran Patil', college:'Fergusson Pune', rating:5, text:'Discovered 4 amazing messes within 1km of my college. The compare feature is brilliant — saved me so much time.' },
-  { name:'Divya Iyer', college:'SCOE Pune', rating:4, text:'Clean UI, accurate data, no spam. This is exactly what students needed. The trust score is a game-changer.' },
+import { motion } from 'framer-motion';
+import { Star, CheckCircle } from 'lucide-react';
+
+const testimonials = [
+  {
+    quote: "I used to get sick every month at my old mess. After switching to a TrustBite verified mess with H:9.2, I haven't had a single stomach issue in 4 months.",
+    name: 'Rohan M.',
+    college: 'B.Tech · NIT Nagpur',
+    avatar: 'R',
+    avatarBg: 'bg-orange-500',
+    featured: false,
+  },
+  {
+    quote: "The hygiene scores are actually accurate — I visited three messes after checking TrustBite and the cleanliness matched exactly what the app showed. This is wild.",
+    name: 'Priya S.',
+    college: 'MBA · Symbiosis Pune',
+    avatar: 'P',
+    avatarBg: 'bg-emerald-500',
+    featured: true,
+  },
+  {
+    quote: "Best thing about TrustBite? I can filter by price AND hygiene score together. Found a ₹70/meal mess with H:9.1 score within walking distance. Changed my life.",
+    name: 'Aarav K.',
+    college: 'B.Com · DU Delhi',
+    avatar: 'A',
+    avatarBg: 'bg-blue-500',
+    featured: false,
+  },
 ];
 
-import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
-import { staggerContainer, fadeInUp } from '../../lib/motion';
+const scrollNames = [
+  'Anjali from BITS', 'Farhan from IIT-B', 'Sneha from MIT Pune', 'Karan from VIT',
+  'Deepa from NIT Trichy', 'Ravi from VNIT', 'Meera from IIM-A', 'Siddharth from COEP',
+  'Nikita from Christ University', 'Arjun from IIIT Hyderabad', 'Tanvi from Manipal',
+  'Omkar from PICT Pune',
+];
 
 export default function TestimonialsSection() {
   return (
-    <section className='py-24' style={{ background: 'linear-gradient(135deg, #FFF7ED 0%, #FFFBEB 100%)' }}>
-      <div className='max-w-7xl mx-auto px-6 lg:px-8'>
-        <motion.div variants={staggerContainer} initial='hidden' whileInView='visible' viewport={{ once:true, margin:'-80px' }}>
-          <motion.div variants={fadeInUp} className='text-center mb-14'>
-            <span className='text-orange-500 font-semibold text-sm tracking-widest uppercase'>Students Love It</span>
-            <h2 className='font-display font-bold text-slate-900 mt-2' style={{ fontSize: 'clamp(1.875rem, 3vw, 3rem)' }}>
-              Real Reviews from Real Students
-            </h2>
-          </motion.div>
+    <section className="py-24 lg:py-32 overflow-hidden" style={{ background: '#FFF8F2' }}>
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <span className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-600 font-bold text-xs tracking-widest uppercase px-4 py-2 rounded-full border border-orange-100 mb-6">
+            ✦ Student Voices
+          </span>
+          <h2 className="font-display font-extrabold text-4xl lg:text-5xl text-[#111827] mb-4 leading-tight">
+            <span className="text-orange-500">18,000</span> Students Trust TrustBite
+          </h2>
+          <p className="text-[#6B7280] text-lg max-w-md mx-auto">
+            Real students. Real messes. Real confidence.
+          </p>
+        </motion.div>
 
-          <motion.div variants={staggerContainer} className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {TESTIMONIALS.map(({ name, college, rating, text }) => (
-              <motion.div key={name} variants={fadeInUp}
-                whileHover={{ y:-4, boxShadow:'0 20px 60px rgba(0,0,0,0.1)', transition:{ duration:0.2 } }}
-                className='bg-white rounded-2xl p-6 flex flex-col gap-4 shadow-card'
+        {/* 3-column testimonials */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-16">
+          {testimonials.map((t, i) => (
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className={`${t.featured ? 'md:-translate-y-3' : ''}`}
+            >
+              <div
+                className={`bg-white rounded-[20px] p-7 lg:p-8 h-full flex flex-col transition-all duration-300 hover:-translate-y-1 ${
+                  t.featured ? 'border-2 border-orange-400' : 'border border-slate-100'
+                }`}
+                style={{ boxShadow: t.featured ? '0 8px 40px rgba(249,115,22,0.12)' : '0 4px 20px rgba(249,115,22,0.07)' }}
               >
-                <div className='text-5xl font-serif text-orange-200 leading-none select-none'>&ldquo;</div>
-                <p className='text-slate-600 text-sm leading-relaxed flex-1 -mt-4'>{text}</p>
-                <div className='flex items-center gap-1 mt-auto'>
-                  {Array.from({ length: 5 }).map((_,i) => (
-                    <Star key={i} size={14} className={i < rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200 fill-slate-200'} />
+                {/* Featured badge */}
+                {t.featured && (
+                  <span className="inline-flex items-center gap-1 self-start bg-orange-50 text-orange-500 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full mb-4">
+                    ⭐ Featured Review
+                  </span>
+                )}
+
+                {/* Stars */}
+                <div className="flex gap-0.5 mb-5">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 text-orange-400 fill-orange-400" />
                   ))}
                 </div>
-                <div className='flex items-center gap-3'>
-                  <div className='w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-amber-300 flex items-center justify-center text-white font-bold text-sm'>
-                    {name.split(' ').map(n=>n[0]).join('')}
+
+                {/* Quote */}
+                <p className="text-[#374151] text-[15px] leading-relaxed italic flex-1 mb-6">
+                  "{t.quote}"
+                </p>
+
+                {/* Divider */}
+                <div className="h-px bg-slate-100 mb-5" />
+
+                {/* Student info */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full ${t.avatarBg} flex items-center justify-center text-white font-bold text-sm`}>
+                      {t.avatar}
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-[#111827]">{t.name}</p>
+                      <p className="text-xs text-[#6B7280]">{t.college}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className='font-semibold text-slate-900 text-sm'>{name}</p>
-                    <p className='text-slate-400 text-xs'>{college}</p>
-                  </div>
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-orange-500 bg-orange-50 px-2 py-1 rounded-full">
+                    <CheckCircle className="w-3 h-3" /> Verified
+                  </span>
                 </div>
-              </motion.div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Scrolling ticker */}
+        <div className="relative overflow-hidden py-4">
+          {/* Fade edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#FFF8F2] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#FFF8F2] to-transparent z-10 pointer-events-none" />
+
+          <div className="flex gap-6 animate-scroll-left">
+            {[...scrollNames, ...scrollNames].map((name, i) => (
+              <span key={`${name}-${i}`} className="flex-shrink-0 text-sm text-[#9CA3AF] font-medium whitespace-nowrap">
+                {name}
+              </span>
             ))}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
+
+      <style>{`
+        @keyframes scroll-left {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-scroll-left {
+          animation: scroll-left 30s linear infinite;
+        }
+      `}</style>
     </section>
   );
 }
