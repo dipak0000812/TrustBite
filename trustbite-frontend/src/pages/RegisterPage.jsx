@@ -45,15 +45,19 @@ const RegisterPage = () => {
 
     try {
       const user = await register(formData);
+      console.log('[Register] Account created:', user.email, 'Role:', user.role);
       toast.success(`Welcome, ${user.full_name}! Account created.`);
       
-      // Role-based redirect
-      if (user.role === 'mess_owner') {
-        navigate('/owner/onboarding');
-      } else if (user.role === 'admin') {
+      // Centralized Role-Based Initial Redirection
+      if (user.role === 'admin') {
+        console.log('[Register] Navigating to Admin Dashboard');
         navigate('/admin/dashboard');
+      } else if (user.role === 'mess_owner') {
+        console.log('[Register] Navigating to Owner Onboarding');
+        navigate('/owner/onboarding');
       } else {
-        navigate('/student/dashboard');
+        console.log('[Register] Navigating to Student Onboarding');
+        navigate('/student/onboarding');
       }
     } catch (err) {
       const msg = err.response?.data?.detail || err.response?.data?.message || 'Registration failed. Please try again.';

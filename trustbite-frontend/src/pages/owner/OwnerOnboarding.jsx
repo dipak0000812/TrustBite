@@ -6,6 +6,7 @@ import {
   ArrowRight, ArrowLeft, CheckCircle2, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import useStore from '../../store/useStore';
 import { messService } from '../../services/messService';
 
 // ─── Step definitions ───────────────────────────────────────────────────────
@@ -112,6 +113,7 @@ const OwnerOnboarding = () => {
         monthly_price: form.monthly_price ? parseFloat(form.monthly_price) : null,
       };
       await messService.create(payload);
+      localStorage.setItem('trustbite_owner_onboarding_complete', 'true');
       toast.success('Mess registered successfully! 🎉');
       navigate('/owner/dashboard');
     } catch (e) {
@@ -120,6 +122,13 @@ const OwnerOnboarding = () => {
       setSubmitting(false);
     }
   };
+
+  const { user } = useStore();
+  React.useEffect(() => {
+    if (user && user.role !== 'mess_owner') {
+      navigate(user.role === 'student' ? '/student/dashboard' : '/');
+    }
+  }, [user, navigate]);
 
   // ─── Step Content Renderers ──────────────────────────────────────────────
 

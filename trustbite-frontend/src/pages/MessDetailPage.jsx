@@ -43,13 +43,27 @@ const MessDetailPage = () => {
         }
 
         if (isAuthenticated && user?.role === 'student') {
-          const [favCheck, revCheck] = await Promise.allSettled([
+          const [favCheck, revCheck, allRevs] = await Promise.allSettled([
             favouriteService.check(id),
             reviewService.hasReviewed(id),
+            reviewService.getMessReviews(id)
           ]);
           if (mounted) {
             if (favCheck.status === 'fulfilled') setIsFav(favCheck.value);
-            if (revCheck.status === 'fulfilled') setHasReviewed(revCheck.value);
+            if (revCheck.status === 'fulfilled') {
+              const hasRev = revCheck.value;
+              setHasReviewed(hasRev);
+              if (hasRev && allRevs.status === 'fulfilled') {
+                const myRev = allRevs.value.find(r => r.student_id === user.id);
+                if (myRev) {
+                  setReviewForm({
+                    rating: myRev.rating,
+                    hygiene_rating: myRev.hygiene_rating,
+                    comment: myRev.comment || ''
+                  });
+                }
+              }
+            }
           }
         }
       } catch (e) { console.error(e); }
@@ -86,21 +100,32 @@ const MessDetailPage = () => {
     if (submitting) return;
     setSubmitting(true);
     try {
-      await reviewService.addReview(id, {
-        rating: reviewForm.rating,
-        hygiene_rating: reviewForm.hygiene_rating,
-        comment: reviewForm.comment || null,
-      });
+      if (hasReviewed) {
+        await reviewService.updateReview(id, {
+          rating: reviewForm.rating,
+          hygiene_rating: reviewForm.hygiene_rating,
+          comment: reviewForm.comment || null,
+        });
+        toast.success('Review updated successfully!');
+      } else {
+        await reviewService.addReview(id, {
+          rating: reviewForm.rating,
+          hygiene_rating: reviewForm.hygiene_rating,
+          comment: reviewForm.comment || null,
+        });
+        toast.success('Review submitted successfully!');
+      }
+      
       const updatedReviews = await reviewService.getMessReviews(id);
       setReviews(updatedReviews);
       setHasReviewed(true);
-      setReviewForm({ rating: 5, hygiene_rating: 5, comment: '' });
-      toast.success('Review submitted successfully!');
+      if (!hasReviewed) setReviewForm({ rating: 5, hygiene_rating: 5, comment: '' });
+      
       // Refresh mess to get updated avg_rating
       const updated = await messService.getById(id);
       setMess(updated);
     } catch (e) {
-      toast.error(e.response?.data?.detail || 'Failed to submit review');
+      toast.error(e.response?.data?.detail || e.message || 'Failed to submit review');
     }
     setSubmitting(false);
   };
@@ -108,21 +133,34 @@ const MessDetailPage = () => {
   const MessDetailSkeleton = () => (
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Skeleton className="w-40 h-6 mb-8" />
+        <Skeleton className="w-40 h-5 mb-8 rounded-lg" />
         <div className="flex flex-col lg:flex-row gap-12">
           <div className="flex-1 space-y-8">
+            {/* Hero Image Skeleton */}
+            <Skeleton className="w-full h-[300px] sm:h-[400px] rounded-[32px]" />
+            
             <div className="space-y-4">
-              <Skeleton className="h-12 w-3/4" />
-              <Skeleton className="h-6 w-1/2" />
+              <Skeleton className="h-10 w-3/4 rounded-xl" />
+              <Skeleton className="h-5 w-1/2 rounded-lg" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Skeleton className="h-24 rounded-3xl" />
-              <Skeleton className="h-24 rounded-3xl" />
-              <Skeleton className="h-24 rounded-3xl" />
+
+            {/* Trust Cards Skeleton */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white p-8 rounded-[32px] border border-slate-100">
+              <Skeleton className="h-20 rounded-2xl" />
+              <Skeleton className="h-20 rounded-2xl" />
+              <Skeleton className="h-20 rounded-2xl" />
+              <Skeleton className="h-20 rounded-2xl" />
             </div>
-            <Skeleton className="h-64 rounded-3xl" />
+
+            {/* Menu Skeleton */}
+            <Skeleton className="h-64 rounded-[32px]" />
           </div>
-          <Skeleton className="w-full lg:w-80 h-96 rounded-[32px]" />
+
+          {/* Sidebar Skeleton */}
+          <div className="w-full lg:w-80 space-y-6">
+            <Skeleton className="h-[400px] rounded-[32px]" />
+            <Skeleton className="h-48 rounded-[32px]" />
+          </div>
         </div>
       </div>
     </div>
@@ -293,84 +331,110 @@ const MessDetailPage = () => {
               </div>
 
               {/* Review Form */}
-              {isAuthenticated && user?.role === 'student' && !hasReviewed && (
-                <form onSubmit={submitReview} className="bg-white p-6 rounded-3xl border border-slate-100 mb-6">
-                  <h3 className="font-bold text-slate-900 mb-4">Write a Review</h3>
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-slate-500 w-24">Overall:</span>
-                      {[1, 2, 3, 4, 5].map(r => (
-                        <button key={r} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: r })}>
-                          <Star className={`w-6 h-6 transition-colors ${r <= reviewForm.rating ? 'text-amber-500 fill-current' : 'text-slate-200'}`} />
-                        </button>
-                      ))}
+              {isAuthenticated && user?.role === 'student' && (
+                <form onSubmit={submitReview} className="bg-white p-5 sm:p-8 rounded-[32px] border border-slate-100 mb-8 shadow-sm">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-black text-slate-900 tracking-tight">{hasReviewed ? 'Edit Your Review' : 'Share Your Experience'}</h3>
+                    {hasReviewed && <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider">Already Reviewed</span>}
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-12 mb-8">
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest w-16">Overall</span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map(r => (
+                          <button key={r} type="button" onClick={() => setReviewForm({ ...reviewForm, rating: r })}>
+                            <Star className={`w-6 h-6 transition-all ${r <= reviewForm.rating ? 'text-amber-500 fill-current scale-110' : 'text-slate-100'}`} />
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-slate-500 w-24">Hygiene:</span>
-                      {[1, 2, 3, 4, 5].map(r => (
-                        <button key={r} type="button" onClick={() => setReviewForm({ ...reviewForm, hygiene_rating: r })}>
-                          <ShieldCheck className={`w-6 h-6 transition-colors ${r <= reviewForm.hygiene_rating ? 'text-orange-500 fill-current' : 'text-slate-200'}`} />
-                        </button>
-                      ))}
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest w-16">Hygiene</span>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map(r => (
+                          <button key={r} type="button" onClick={() => setReviewForm({ ...reviewForm, hygiene_rating: r })}>
+                            <ShieldCheck className={`w-6 h-6 transition-all ${r <= reviewForm.hygiene_rating ? 'text-emerald-500 fill-current scale-110' : 'text-slate-100'}`} />
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                   <textarea
                     value={reviewForm.comment}
                     onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                    placeholder="Share your experience..."
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-medium resize-none h-24 outline-none focus:ring-2 focus:ring-orange-500/20"
+                    placeholder="Describe the food, ambience, or service..."
+                    className="w-full p-5 bg-slate-50 border border-slate-100 rounded-[24px] text-sm font-bold text-slate-700 placeholder-slate-400 resize-none h-32 outline-none focus:ring-4 focus:ring-orange-500/5 focus:bg-white transition-all"
                   />
-                  <button type="submit" disabled={submitting}
-                    className="mt-4 bg-orange-500 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-colors disabled:opacity-70">
-                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    Submit Review
-                  </button>
+                  <div className="flex flex-col sm:flex-row items-center gap-4 mt-6">
+                    <button type="submit" disabled={submitting}
+                      className="w-full sm:w-auto bg-slate-900 text-white px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50 shadow-xl shadow-slate-200">
+                      {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                      {hasReviewed ? 'Update Review' : 'Submit Review'}
+                    </button>
+                    {hasReviewed && (
+                      <p className="text-[10px] font-bold text-slate-400 text-center sm:text-left">
+                        Updating your review will recalculate the trust score.
+                      </p>
+                    )}
+                  </div>
                 </form>
               )}
 
               {!isAuthenticated && (
-                <div className="bg-white p-8 rounded-3xl border border-slate-100 mb-6 text-center">
-                  <p className="text-slate-500 font-medium mb-4">
-                    Login to add your review and favourites.
+                <div className="bg-white p-10 rounded-[32px] border border-slate-100 mb-8 text-center shadow-sm">
+                  <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <User className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">Join the Community</h3>
+                  <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">
+                    Sign in to rate this mess and add it to your favourites.
                   </p>
                   <Link
                     to="/login"
-                    className="inline-flex items-center gap-2 bg-orange-500 text-white px-6 py-2.5 rounded-2xl font-bold text-sm hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
+                    className="inline-flex items-center gap-2 bg-orange-500 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 active:scale-95"
                   >
-                    Login Now
+                    Sign In Now
                   </Link>
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-4 px-1 sm:px-0">
                 {Array.isArray(reviews) && reviews.map(rev => (
-                  <div key={rev.id} className="bg-white p-5 rounded-3xl border border-slate-100">
-                    <div className="flex justify-between items-start mb-2">
+                  <div key={rev.id} className="bg-white p-6 rounded-[28px] border border-slate-100 shadow-sm relative overflow-hidden group">
+                    {rev.student_id === user?.id && (
+                       <div className="absolute top-0 right-0 px-3 py-1 bg-orange-50 text-orange-500 text-[9px] font-black uppercase tracking-widest rounded-bl-xl">Your Review</div>
+                    )}
+                    <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm text-slate-500">
-                          {(rev.student_name || 'A')[0]}
+                        <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-xs text-slate-500 shadow-sm">
+                          {(rev.student_name || 'A')[0].toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 text-sm">{rev.student_name || 'Anonymous'}</p>
-                          <p className="text-[10px] text-slate-400">{new Date(rev.created_at).toLocaleDateString()}</p>
+                          <p className="font-black text-slate-900 text-sm tracking-tight">{rev.student_name || 'Anonymous User'}</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{new Date(rev.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                         </div>
                       </div>
-                      <div className="flex gap-0.5">
+                      <div className="flex gap-0.5 bg-slate-50 px-2 py-1 rounded-lg">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-3.5 h-3.5 ${i < rev.rating ? 'text-amber-500 fill-current' : 'text-slate-200'}`} />
+                          <Star key={i} className={`w-3 h-3 ${i < rev.rating ? 'text-amber-500 fill-current' : 'text-slate-200'}`} />
                         ))}
                       </div>
                     </div>
-                    {rev.comment && <p className="text-sm text-slate-600 font-medium">{rev.comment}</p>}
+                    {rev.comment && <p className="text-sm text-slate-600 font-bold leading-relaxed">{rev.comment}</p>}
+                    <div className="mt-4 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                       <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          <ShieldCheck className="w-3 h-3 text-emerald-500" /> Hygiene {rev.hygiene_rating}/5
+                       </div>
+                    </div>
                   </div>
                 ))}
                 {Array.isArray(reviews) && reviews.length === 0 && (
-                  <div className="bg-white rounded-[32px] p-12 text-center border border-slate-100">
-                    <div className="w-16 h-16 bg-slate-50 text-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <ClipboardList className="w-8 h-8" />
+                  <div className="bg-white rounded-[32px] p-16 text-center border border-slate-100 shadow-sm">
+                    <div className="w-20 h-20 bg-slate-50 text-slate-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <ClipboardList className="w-10 h-10" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-2">No reviews yet</h3>
-                    <p className="text-slate-500 text-sm">Be the first to share your experience with {mess.name}!</p>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">No reviews found</h3>
+                    <p className="text-slate-500 text-sm max-w-xs mx-auto">Be the first student to share your honest experience with the community!</p>
                   </div>
                 )}
               </div>

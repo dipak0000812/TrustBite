@@ -12,6 +12,7 @@ import MessDetailPage from './pages/MessDetailPage';
 
 // Student pages
 import StudentDashboard from './pages/student/StudentDashboard';
+import OnboardingPage from './pages/student/OnboardingPage';
 import FavouritesPage from './pages/FavouritesPage';
 
 // Owner pages
@@ -26,8 +27,10 @@ import AdminDashboard from './pages/AdminDashboard';
 import { Toaster } from 'react-hot-toast';
 import useStore from './store/useStore';
 
+import { ROLES } from './constants/roles';
+
 // Hide navbar on these routes
-const HIDE_NAVBAR = ['/login', '/register', '/owner/onboarding'];
+const HIDE_NAVBAR = ['/login', '/register', '/owner/onboarding', '/student/onboarding'];
 
 function AppContent() {
   const { checkAuth, isInitializing, user } = useStore();
@@ -79,41 +82,46 @@ function AppContent() {
 
         {/* ── Student ────────────────────────────────────────────────── */}
         <Route path="/student/dashboard" element={
-          <ProtectedRoute roles={['student']}>
+          <ProtectedRoute roles={[ROLES.STUDENT]}>
             <StudentDashboard />
           </ProtectedRoute>
         } />
+        <Route path="/student/onboarding" element={
+          <ProtectedRoute roles={[ROLES.STUDENT]}>
+            <OnboardingPage />
+          </ProtectedRoute>
+        } />
         <Route path="/favourites" element={
-          <ProtectedRoute roles={['student']}>
+          <ProtectedRoute roles={[ROLES.STUDENT]}>
             <FavouritesPage />
           </ProtectedRoute>
         } />
 
         {/* ── Mess Owner ─────────────────────────────────────────────── */}
         <Route path="/owner/dashboard" element={
-          <ProtectedRoute roles={['mess_owner']}>
+          <ProtectedRoute roles={[ROLES.MESS_OWNER]}>
             <OwnerDashboard />
           </ProtectedRoute>
         } />
         <Route path="/owner/onboarding" element={
-          <ProtectedRoute roles={['mess_owner']}>
+          <ProtectedRoute roles={[ROLES.MESS_OWNER]}>
             <OwnerOnboarding />
           </ProtectedRoute>
         } />
         <Route path="/owner/edit" element={
-          <ProtectedRoute roles={['mess_owner']}>
+          <ProtectedRoute roles={[ROLES.MESS_OWNER]}>
             <OwnerMessEdit />
           </ProtectedRoute>
         } />
         <Route path="/owner/menu" element={
-          <ProtectedRoute roles={['mess_owner']}>
+          <ProtectedRoute roles={[ROLES.MESS_OWNER]}>
             <OwnerMenuManager />
           </ProtectedRoute>
         } />
 
         {/* ── Admin ──────────────────────────────────────────────────── */}
         <Route path="/admin/dashboard" element={
-          <ProtectedRoute roles={['admin']}>
+          <ProtectedRoute roles={[ROLES.ADMIN]}>
             <AdminDashboard />
           </ProtectedRoute>
         } />
@@ -122,8 +130,8 @@ function AppContent() {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <Navigate to={
-              user?.role === 'admin' ? '/admin/dashboard' :
-              user?.role === 'mess_owner' ? '/owner/dashboard' :
+              user?.role === ROLES.ADMIN ? '/admin/dashboard' :
+              user?.role === ROLES.MESS_OWNER ? '/owner/dashboard' :
               '/student/dashboard'
             } replace />
           </ProtectedRoute>

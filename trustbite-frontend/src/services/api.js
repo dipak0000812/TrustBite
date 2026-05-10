@@ -29,25 +29,31 @@ api.interceptors.request.use(
 );
 
 
-// Handle global auth failures
+// Handle global failures
 api.interceptors.response.use(
-
   (response) => response,
-
   (error) => {
-
+    // 1. Session Expiry (401)
     if (error.response?.status === 401) {
-
       localStorage.removeItem('trustbite_token');
       localStorage.removeItem('trustbite_user');
-
-      // avoid infinite redirects
-      if (
-        !window.location.pathname.includes('/login')
-      ) {
-        toast.error('Session expired. Please login again.');
+      
+      if (!window.location.pathname.includes('/login')) {
+        toast.error('Session expired. Please sign in again.');
         window.location.replace('/login');
       }
+    } 
+    // 2. Network Errors (No response)
+    else if (!error.response) {
+      toast.error('Network error. Check your connection.');
+    }
+    // 3. Server Errors (500+)
+    else if (error.response.status >= 500) {
+      toast.error('Server error. Our team is looking into it.');
+    }
+    // 4. Rate Limiting (429)
+    else if (error.response.status === 429) {
+      toast.error('Too many requests. Please slow down.');
     }
 
     return Promise.reject(error);

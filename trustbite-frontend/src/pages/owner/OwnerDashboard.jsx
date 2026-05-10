@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Star, Eye, MessageSquare, ShieldCheck, Clock,
@@ -31,14 +31,29 @@ const OwnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeMess, setActiveMess] = useState(null);
 
+  const navigate = useNavigate();
   useEffect(() => {
+    // Security check
+    if (user && user.role !== 'mess_owner') {
+      navigate(user.role === 'student' ? '/student/dashboard' : '/');
+      return;
+    }
+
     let mounted = true;
     const load = async () => {
       try {
         const data = await messService.getOwnerMesses();
         if (mounted) {
           setMesses(data);
-          if (data.length > 0) setActiveMess(data[0]);
+          if (data.length > 0) {
+             setActiveMess(data[0]);
+             // Mark onboarding complete if they have a mess
+             localStorage.setItem('trustbite_owner_onboarding_complete', 'true');
+          } else {
+             // If no mess, check flag
+             const isComplete = localStorage.getItem('trustbite_owner_onboarding_complete') === 'true';
+             if (!isComplete) navigate('/owner/onboarding');
+          }
         }
       } catch (e) {
         console.error(e);
@@ -49,7 +64,7 @@ const OwnerDashboard = () => {
     };
     load();
     return () => { mounted = false; };
-  }, []);
+  }, [user, navigate]);
 
   if (loading) {
     return (

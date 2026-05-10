@@ -193,17 +193,22 @@ const DiscoveryPage = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-24 bg-white rounded-[32px] border border-dashed border-[#F3E8DA]">
-            <div className="text-4xl mb-4">🔍</div>
-            <h3 className="text-lg font-bold text-[#111827] mb-2">No messes found</h3>
-            <p className="text-[13px] text-[#6B7280]">Try adjusting your search or filters to find what you're looking for.</p>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+            className="text-center py-20 bg-white rounded-[32px] border-2 border-dashed border-slate-100 shadow-sm px-6">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search className="w-10 h-10 text-slate-200" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-2">No matching messes found</h3>
+            <p className="text-slate-500 text-sm max-w-xs mx-auto font-bold mb-8 leading-relaxed">
+              We couldn&apos;t find any messes matching your current filters. Try expanding your search or clearing filters.
+            </p>
             <button 
               onClick={() => { setSearchQuery(''); setActiveCuisine(''); setVegOnly(false); }}
-              className="mt-6 text-[#F97316] font-bold text-sm hover:underline"
+              className="bg-orange-500 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 active:scale-95"
             >
               Clear all filters
             </button>
-          </div>
+          </motion.div>
         )}
       </div>
 

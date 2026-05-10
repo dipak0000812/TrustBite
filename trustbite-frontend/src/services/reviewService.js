@@ -55,4 +55,23 @@ export const reviewService = {
       handleError(err);
     }
   },
+
+  async updateReview(messId, data) {
+    try {
+      const payload = {
+        rating: Number(data.rating),
+        hygiene_rating: Number(data.hygiene_rating || 5),
+        comment: data.comment?.trim() || null,
+      };
+
+      const res = await api.put(
+        `/api/messes/${messId}/reviews`,
+        payload
+      );
+
+      return res.data;
+    } catch (err) {
+      handleError(err);
+    }
+  },
 };

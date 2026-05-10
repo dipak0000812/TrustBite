@@ -1,9 +1,11 @@
 import { Navigate, Link } from 'react-router-dom';
 import useStore from '../../store/useStore';
 
+import { ROLES } from '../../constants/roles';
+
 const getDashboardPath = (role) => {
-  if (role === 'admin') return '/admin/dashboard';
-  if (role === 'mess_owner') return '/owner/dashboard';
+  if (role === ROLES.ADMIN) return '/admin/dashboard';
+  if (role === ROLES.MESS_OWNER) return '/owner/dashboard';
   return '/student/dashboard';
 };
 

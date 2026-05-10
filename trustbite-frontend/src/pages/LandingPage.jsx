@@ -1,7 +1,6 @@
 import HeroSection from '../components/sections/HeroSection';
 import HowItWorksSection from '../components/sections/HowItWorksSection';
 import FeaturesSection from '../components/sections/FeaturesSection';
-import StatsSection from '../components/sections/StatsSection';
 import FeaturedMessSection from '../components/sections/FeaturedMessSection';
 import TestimonialsSection from '../components/sections/TestimonialsSection';
 import PricingSection from '../components/sections/PricingSection';
@@ -14,7 +13,6 @@ export default function LandingPage() {
       <HeroSection />
       <HowItWorksSection />
       <FeaturesSection />
-      <StatsSection />
       <FeaturedMessSection />
       <TestimonialsSection />
       <PricingSection />

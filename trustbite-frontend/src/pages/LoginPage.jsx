@@ -50,10 +50,23 @@ const LoginPage = () => {
     clearAuthError();
     try {
       const user = await login(email, password);
+      console.log('[Login] Success:', user.email, 'Role:', user.role);
       toast.success(`Welcome back, ${user.full_name}!`);
-      if (user.role === 'admin')           navigate('/admin/dashboard');
-      else if (user.role === 'mess_owner') navigate('/owner/dashboard');
-      else                                 navigate('/student/dashboard');
+      
+      // Centralized Role-Based Navigation
+      if (user.role === 'admin') {
+        console.log('[Login] Navigating to Admin Dashboard');
+        navigate('/admin/dashboard');
+      } else if (user.role === 'mess_owner') {
+        const isOwnerComplete = localStorage.getItem('trustbite_owner_onboarding_complete') === 'true';
+        console.log('[Login] Owner status:', isOwnerComplete ? 'Complete' : 'Pending');
+        navigate(isOwnerComplete ? '/owner/dashboard' : '/owner/onboarding');
+      } else {
+        // Default to student
+        const isStudentComplete = localStorage.getItem('trustbite_student_onboarding_complete') === 'true';
+        console.log('[Login] Student status:', isStudentComplete ? 'Complete' : 'Pending');
+        navigate(isStudentComplete ? '/student/dashboard' : '/student/onboarding');
+      }
     } catch (err) {
       const msg = err.response?.data?.detail || err.response?.data?.message || 'Invalid credentials. Please try again.';
       toast.error(msg);

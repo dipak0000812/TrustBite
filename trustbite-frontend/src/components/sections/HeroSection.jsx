@@ -79,7 +79,7 @@ export default function HeroSection() {
             <div className='flex flex-col sm:flex-row items-stretch sm:items-center bg-white rounded-[24px] sm:rounded-2xl shadow-2xl shadow-black/20 overflow-hidden p-2 sm:p-0'>
               <div className='flex items-center gap-2 px-4 py-3 sm:py-4 text-slate-400 border-b sm:border-b-0 sm:border-r border-slate-100'>
                 <MapPin size={18} className='text-orange-500' />
-                <span className='text-sm text-slate-500 whitespace-nowrap font-bold'>Pune</span>
+                <span className='text-sm text-slate-500 whitespace-nowrap font-bold'>{JSON.parse(localStorage.getItem('trustbite_user_prefs') || '{}').city || 'Pune'}</span>
               </div>
               <input
                 value={query}
@@ -96,9 +96,9 @@ export default function HeroSection() {
 
           {/* Floating Mess Cards row — centered below search */}
           {floatingMesses.length > 0 && (
-            <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 justify-center mt-6 sm:mt-8 w-full max-w-4xl mx-auto px-2 sm:px-0">
+            <div className="flex flex-row overflow-x-auto lg:overflow-x-visible gap-3 sm:gap-4 justify-start lg:justify-center mt-6 sm:mt-8 w-full max-w-4xl mx-auto px-6 sm:px-0 scrollbar-hide snap-x pb-4">
               {floatingMesses.map((mess, i) => (
-                <Link key={mess.id} to={`/mess/${mess.id}`} className="w-full sm:flex-1 block">
+                <Link key={mess.id} to={`/mess/${mess.id}`} className="flex-shrink-0 w-[260px] sm:w-[280px] lg:flex-1 snap-center">
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: [0, -6, 0] }}

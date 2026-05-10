@@ -12,10 +12,8 @@ export const authService = {
       email: data.email.trim().toLowerCase(),
       password: data.password,
 
-      // FIXED ROLE
-      role: data.role === 'owner'
-        ? 'mess_owner'
-        : 'student',
+      // Pass role directly as set in the UI (student or mess_owner)
+      role: data.role,
 
       college_name: data.collegeName || null,
       phone: data.phone || null,

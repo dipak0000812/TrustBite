@@ -1,8 +1,8 @@
 import React from 'react';
-import { Star, ShieldCheck, Heart, MapPin } from 'lucide-react';
+import { Star, ShieldCheck, Heart, MapPin, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const MessCard = ({ mess }) => {
+const MessCard = ({ mess, reason }) => {
   // Map backend fields to display-friendly values
   const rating = Number(mess?.avg_rating ?? 0).toFixed(1);
   const trustScore = mess?.trust_score ? Number(mess.trust_score).toFixed(1) : '--';
@@ -19,7 +19,16 @@ const MessCard = ({ mess }) => {
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 
+          {/* Reason Badge */}
+          {reason && (
+            <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm border border-orange-100 animate-pulse">
+              <Sparkles className="w-3 h-3 text-orange-500" />
+              <span className="text-[10px] font-black text-orange-600 uppercase tracking-tight">{reason}</span>
+            </div>
+          )}
+
           {/* Rating Badge */}
+
           <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm">
             <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
             <span className="text-sm font-bold text-slate-900">{rating}</span>
