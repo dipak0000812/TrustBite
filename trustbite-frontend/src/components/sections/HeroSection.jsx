@@ -143,18 +143,6 @@ export default function HeroSection() {
             ))}
           </motion.div>
         </div>
-            {[
-              { label: '2,400+ Messes Listed', icon: '🏪' },
-              { label: '18K+ Student Reviews', icon: '⭐' },
-              { label: 'FSSAI Verified Data', icon: '🛡️' },
-            ].map(({ label, icon }) => (
-              <span key={label} className='flex items-center gap-1.5 bg-white/20 backdrop-blur-sm border border-white/25 text-white text-xs px-3 py-1.5 rounded-full font-medium'>
-                <span>{icon}</span>{label}
-              </span>
-            ))}
-          </motion.div>
-        </div>
-
       </div>
 
       {/* Scroll cue */}
