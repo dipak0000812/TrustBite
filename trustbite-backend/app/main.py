@@ -28,13 +28,25 @@ from app.models.favourite import Favourite
 
 Base.metadata.create_all(bind=engine)
 
+from app.core.config import settings
+
 # ── CORS ──────────────────────────────────────────────────────────
-allow_origins = [
+# Parse CORS_ORIGINS from settings if provided, otherwise use defaults
+raw_origins = settings.CORS_ORIGINS.split(",") if settings.CORS_ORIGINS else []
+allow_origins = [origin.strip() for origin in raw_origins if origin.strip()]
+
+# Add default development and production origins
+default_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
+    "http://localhost:3000",
+    "https://trustbite-hazel.vercel.app",
 ]
+
+# Merge and deduplicate
+allow_origins = list(set(allow_origins + default_origins))
 
 app.add_middleware(
     CORSMiddleware,
