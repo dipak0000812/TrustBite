@@ -1,36 +1,88 @@
 import api from './api';
 
 export const authService = {
+
+  // ─────────────────────────────
+  // Register
+  // ─────────────────────────────
   async register(data) {
-    const res = await api.post('/auth/register', {
-      full_name: data.name,
-      email: data.email,
+
+    const payload = {
+      full_name: data.name.trim(),
+      email: data.email.trim().toLowerCase(),
       password: data.password,
-      role: data.role === 'owner' ? 'mess_owner' : 'student',
+
+      // FIXED ROLE
+      role: data.role === 'owner'
+        ? 'mess_owner'
+        : 'student',
+
       college_name: data.collegeName || null,
       phone: data.phone || null,
-    });
+    };
+
+    const res = await api.post(
+      '/auth/register',
+      payload
+    );
+
     return res.data;
   },
 
+
+  // ─────────────────────────────
+  // Login
+  // ─────────────────────────────
   async login(email, password) {
-    // Backend uses OAuth2PasswordRequestForm (x-www-form-urlencoded)
-    const params = new URLSearchParams();
-    params.append('username', email);
-    params.append('password', password);
-    const res = await api.post('/auth/login', params, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    });
-    return res.data; // { access_token, token_type, user }
-  },
 
-  async getMe() {
-    const res = await api.get('/auth/me');
+    // VIVA: OAuth2 Password Flow
+    // Backend expects 'username' and 'password' in x-www-form-urlencoded format.
+    // Returns a JWT access_token which is then stored in localStorage.
+    const params = new URLSearchParams();
+
+    params.append(
+      'username',
+      email.trim().toLowerCase()
+    );
+
+    params.append(
+      'password',
+      password
+    );
+
+    const res = await api.post(
+      '/auth/login',
+      params,
+      {
+        headers: {
+          'Content-Type':
+            'application/x-www-form-urlencoded',
+        },
+      }
+    );
+
     return res.data;
   },
 
+
+  // ─────────────────────────────
+  // Current User
+  // ─────────────────────────────
+  async getMe() {
+
+    const res = await api.get('/auth/me');
+
+    return res.data;
+  },
+
+
+  // ─────────────────────────────
+  // Admin Users
+  // ─────────────────────────────
   async getUsers() {
+
     const res = await api.get('/auth/users');
+
     return res.data;
   },
 };

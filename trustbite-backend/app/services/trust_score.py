@@ -8,7 +8,8 @@ def calculate_trust_score(
 ) -> float:
     """
     Returns a trust score between 0.0 and 10.0.
-    Stored as DECIMAL(3,1) on the messes table.
+    VIVA: Weighted algorithm combining User Rating (40%), Hygiene Audit (40%), 
+    Review Volume (10%), and FSSAI Compliance (10%).
     """
     # Normalize avg_rating from 0-5 to 0-10
     rating_component = (avg_rating / 5.0) * 10.0 * 0.40

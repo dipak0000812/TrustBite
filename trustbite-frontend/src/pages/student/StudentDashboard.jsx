@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Sparkles, Loader2, User, Award, ShieldCheck, Search, ArrowRight } from 'lucide-react';
-import useStore from '../store/useStore';
-import MessCard from '../components/MessCard';
-import { favouriteService } from '../services/favouriteService';
-import { aiService } from '../services/aiService';
-import { statsService } from '../services/statsService';
-import { MessCardSkeleton, Skeleton } from '../components/Skeleton';
+import useStore from '../../store/useStore';
+import MessCard from '../../components/MessCard';
+import { favouriteService } from '../../services/favouriteService';
+import { aiService } from '../../services/aiService';
+import { statsService } from '../../services/statsService';
+import { MessCardSkeleton, Skeleton } from '../../components/Skeleton';
 
 const Dashboard = () => {
   const { user } = useStore();

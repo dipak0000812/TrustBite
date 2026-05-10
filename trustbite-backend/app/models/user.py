@@ -1,15 +1,22 @@
+from __future__ import annotations
 import uuid
+from typing import TYPE_CHECKING
 from datetime import datetime
 from sqlalchemy import String, Boolean, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.types import Uuid
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.mess import Mess
+    from app.models.review import Review
+    from app.models.favourite import Favourite
 
 class User(Base):
     __tablename__ = 'users'
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     full_name:     Mapped[str]          = mapped_column(String(120), nullable=False)
     email:         Mapped[str]          = mapped_column(String(255), nullable=False, unique=True)

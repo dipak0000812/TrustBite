@@ -1,326 +1,138 @@
-# TrustBite
+# 🥗 TrustBite: Hyperlocal Mess Discovery Platform
 
-**TrustBite** is a hyperlocal mess and tiffin discovery platform designed for college students living away from home.
-It helps students find reliable meal services using hygiene scores, real reviews, and AI-based recommendations.
-
----
-
-## Problem
-
-College students in towns like Shirpur often struggle to find trustworthy mess or tiffin services.
-Information about hygiene, pricing, and food quality is scattered and based on word-of-mouth.
-
-Students waste time and money trying unreliable options.
+TrustBite is a full-stack platform designed to help students discover, evaluate, and trust local mess (dining) services. It combines crowdsourced reviews with AI-powered recommendations and official FSSAI verification data to provide a "Trust Score" for every listing.
 
 ---
 
-## Solution
+## 🚀 Features
 
-TrustBite provides a centralized platform where students can:
+### 🎓 Student Flow
+*   **Hyperlocal Search**: Find messes near your college or hostel with advanced filtering.
+*   **Trust Scores**: Evaluate messes using our proprietary weighted algorithm (Rating + Hygiene + Volume + Verification).
+*   **AI Recommendations**: Personalized mess suggestions based on your taste and budget.
+*   **Favourites & Reviews**: Save your top picks and share verified dining experiences.
 
-* Discover nearby mess and tiffin services
-* View admin-verified hygiene scores
-* Read real student reviews
-* Get AI-based personalized recommendations
+### 🍽️ Mess Owner Flow
+*   **Listing Management**: Manage menus, pricing, and profile details in real-time.
+*   **Performance Analytics**: View student engagement and review trends (Admin/Owner view).
 
-**Goal:**
-A student should be able to find a reliable mess in under **5 minutes**.
-
----
-
-## Core Features
-
-### Student
-
-* Register and login
-* Browse nearby mess listings
-* View hygiene scores and ratings
-* Submit reviews
-* Save favourite messes
-* Get AI-based recommendations
-
-### Mess Owner
-
-* Register as a service provider
-* Create and manage mess listings
-* Update menu and pricing
-* Upload photos
-
-### Admin
-
-* Approve or reject mess listings
-* Assign hygiene scores
-* Moderate reviews
-* Manage users
-
-### AI Recommendation
-
-* Content-based recommendation system
-* Uses mess attributes and student preferences
-* Cosine similarity–based ranking
-* Popularity-based fallback for new users
+### 👑 Admin Flow
+*   **Platform Oversight**: Manage all users, messes, and verification states.
+*   **Global Statistics**: Monitor platform health and total engagement metrics.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-### Frontend
+| Component | Technology |
+| :--- | :--- |
+| **Frontend** | React 19, Vite, Tailwind CSS, Framer Motion, Zustand |
+| **Backend** | FastAPI (Python 3.11+), SQLAlchemy, Pydantic |
+| **Database** | PostgreSQL (Production) / SQLite (Development) |
+| **AI/ML** | Scikit-learn, NumPy (Content-based Filtering) |
+| **Auth** | OAuth2 + JWT (Stateless Authentication) |
 
-* React + Vite
-* Tailwind CSS
-* shadcn/ui
-* React Hook Form + Zod
-* Zustand (state management)
-* Hosted on **Vercel**
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    User((User/Browser))
+    subgraph "Frontend (React + Vite)"
+        UI[UI Components]
+        State[Zustand Store]
+        Axios[Axios Interceptors]
+    end
+    subgraph "Backend (FastAPI)"
+        Router[API Routers]
+        Service[Business Logic/Services]
+        AI[AI Engine]
+        DB_Layer[SQLAlchemy ORM]
+    end
+    Database[(PostgreSQL)]
+
+    User <--> UI
+    UI <--> State
+    State <--> Axios
+    Axios <--> Router
+    Router <--> Service
+    Service <--> AI
+    Service <--> DB_Layer
+    DB_Layer <--> Database
+```
+
+### Rationale
+*   **FastAPI**: Chosen for its high performance, native async support, and automatic OpenAPI (Swagger) generation.
+*   **PostgreSQL**: Provides robust relational integrity and JSONB support for future scalability.
+*   **Zustand**: Lightweight state management for handling auth and global loading states without boilerplate.
+*   **Framer Motion**: Enables premium, high-fidelity micro-interactions for a production-grade feel.
+
+---
+
+## 📂 Folder Structure
+
+```text
+TrustBite/
+├── trustbite-frontend/     # React application
+│   ├── src/
+│   │   ├── components/     # UI, Sections, and Layouts
+│   │   ├── services/       # API abstraction layer
+│   │   ├── store/          # Zustand global state
+│   │   └── pages/          # View components
+├── trustbite-backend/      # FastAPI application
+│   ├── app/
+│   │   ├── core/           # Security & Configuration
+│   │   ├── models/         # SQLAlchemy Schemas
+│   │   ├── routers/        # API Endpoints
+│   │   └── services/       # Core Logic & AI Engine
+├── screenshots/            # UI Preview assets
+├── DEMO_FLOW.md            # Structured guide for presentations
+├── TEST_CREDENTIALS.md     # Quick-access test accounts
+└── .gitignore              # Repository safety configuration
+```
+
+---
+
+## ⚙️ Setup Instructions
+
+### Backend Setup
+1. `cd trustbite-backend`
+2. `python -m venv venv`
+3. `source venv/bin/activate` (or `venv\Scripts\activate` on Windows)
+4. `pip install -r requirements.txt`
+5. Create `.env` from `.env.example`
+6. `uvicorn app.main:app --reload`
+
+### Frontend Setup
+1. `cd trustbite-frontend`
+2. `npm install`
+3. Create `.env` from `.env.example`
+4. `npm run dev`
+
+---
+
+## 🔑 Demo Credentials
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin@trustbite.com` | `Admin@123` |
+| **Student** | `aryan@student.com` | `Student@123` |
+| **Owner** | `ramesh@owner.com` | `Owner@123` |
+
+---
+
+## 📈 Environment Variables
 
 ### Backend
-
-* Python 3.11
-* FastAPI
-* SQLAlchemy
-* Alembic migrations
-* JWT authentication
-* Hosted on **Railway**
-
-### Database
-
-* PostgreSQL (Railway managed)
-
-### AI Module
-
-* Scikit-learn
-* Pandas
-* NumPy
-* Content-based recommendation engine
-
-### DevOps
-
-* GitHub for version control
-* GitHub Actions for CI
-* Vercel and Railway for automatic deployments
-
----
-
-## System Architecture
-
-TrustBite follows a **3-tier monolithic architecture**:
-
-1. **Frontend (React SPA)**
-
-   * Hosted on Vercel
-   * Communicates with backend via REST APIs
-
-2. **Backend (FastAPI)**
-
-   * Handles authentication, business logic, and APIs
-   * Integrates AI recommendation module
-
-3. **Database (PostgreSQL)**
-
-   * Stores users, messes, reviews, menus, and favourites
-
----
-
-## Core User Flow
-
-1. Mess owner registers and creates a listing.
-2. Admin reviews and assigns a hygiene score.
-3. Student logs in.
-4. Student browses approved messes.
-5. Student reads reviews and ratings.
-6. AI recommends top messes.
-7. Student chooses a mess.
-
----
-
-## Project Structure
-
-### Backend
-
-```
-backend/
-├── main.py
-├── config.py
-├── database.py
-├── models/
-├── schemas/
-├── routers/
-├── services/
-├── ai/
-├── migrations/
-└── requirements.txt
-```
+*   `DATABASE_URL`: Connection string for PostgreSQL/SQLite.
+*   `SECRET_KEY`: JWT signing key.
+*   `ALGORITHM`: JWT algorithm (Default: HS256).
 
 ### Frontend
-
-```
-frontend/
-├── src/
-│   ├── pages/
-│   ├── components/
-│   ├── hooks/
-│   ├── store/
-│   ├── lib/
-│   └── styles/
-├── index.html
-├── vite.config.js
-└── tailwind.config.js
-```
+*   `VITE_API_URL`: Backend API endpoint (Default: `http://localhost:8000/api`).
 
 ---
 
-## Local Development Setup
-
-### Prerequisites
-
-* Node.js 18+
-* Python 3.11+
-* PostgreSQL
-
----
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-username/trustbite.git
-cd trustbite
-```
-
----
-
-### 2. Backend Setup
-
-```bash
-cd backend
-
-python -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate      # Windows
-
-pip install -r requirements.txt
-```
-
-Create a `.env` file:
-
-```
-DATABASE_URL=postgresql://user:password@localhost:5432/trustbite
-JWT_SECRET_KEY=your-secret-key
-```
-
-Run migrations:
-
-```bash
-alembic upgrade head
-```
-
-Start backend:
-
-```bash
-uvicorn main:app --reload
-```
-
-Backend runs at:
-
-```
-http://localhost:8000
-```
-
-API docs:
-
-```
-http://localhost:8000/docs
-```
-
----
-
-### 3. Frontend Setup
-
-```bash
-cd frontend
-npm install
-```
-
-Create `.env` file:
-
-```
-VITE_API_URL=http://localhost:8000/api/v1
-```
-
-Start frontend:
-
-```bash
-npm run dev
-```
-
-Frontend runs at:
-
-```
-http://localhost:5173
-```
-
----
-
-## Deployment
-
-### Frontend
-
-* Hosted on **Vercel**
-* Auto-deploy on push to `main`
-
-### Backend
-
-* Hosted on **Railway**
-* Auto-deploy on push to `main`
-
-### Database
-
-* PostgreSQL via Railway
-
----
-
-## Environment Variables
-
-### Backend
-
-```
-DATABASE_URL=
-JWT_SECRET_KEY=
-JWT_ALGORITHM=HS256
-JWT_EXPIRE_MINUTES=10080
-CORS_ORIGINS=
-CLOUDINARY_URL=
-```
-
-### Frontend
-
-```
-VITE_API_URL=
-```
-
----
-
-## Team
-
-| Member    | Role                |
-| --------- | ------------------- |
-| Dipak     | Tech Lead + Backend |
-| Prachi    | Frontend Lead       |
-| Bhushan   | AI Engineer         |
-| Aakanksha | Admin UI + QA       |
-
----
-
-## Project Goals
-
-* Production-style architecture
-* Fully deployed public system
-* Real AI-based feature
-* Clean UI and UX
-* Resume-worthy engineering project
-
----
-
-## License
-
-This project is developed as part of an academic semester project.
-License to be decided by the team.
+## 📜 License
+This project is developed for educational purposes as part of the Final Year Engineering Project.

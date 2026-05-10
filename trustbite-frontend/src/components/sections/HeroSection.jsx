@@ -1,16 +1,29 @@
 import { motion } from 'framer-motion';
 import { Search, MapPin, Star, Shield, ChevronRight, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { fadeInUp, scaleIn } from '../../lib/motion';
-
-const FLOATING_CARDS = [
-  { name: 'Shree Sai Mess', cuisine: 'Maharashtrian', hygiene: 9.2, rating: 4.7, price: '₹80/meal', tag: 'Top Rated' },
-  { name: 'Annapoorna Bhojanalay', cuisine: 'South Indian', hygiene: 8.8, rating: 4.5, price: '₹65/meal', tag: 'Budget' },
-  { name: 'Gurudev Mess', cuisine: 'North Indian', hygiene: 9.5, rating: 4.9, price: '₹95/meal', tag: 'Verified' },
-];
+import { messService } from '../../services/messService';
 
 export default function HeroSection() {
   const [query, setQuery] = useState('');
+  const [floatingMesses, setFloatingMesses] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    messService.getFeatured(3)
+      .then(data => setFloatingMesses(data))
+      .catch(console.error);
+  }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (query.trim()) {
+      navigate(`/discover?search=${encodeURIComponent(query)}`);
+    } else {
+      navigate('/discover');
+    }
+  };
 
   return (
     <section className='relative min-h-screen overflow-hidden'
@@ -32,7 +45,7 @@ export default function HeroSection() {
       <div className='relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-32 pb-20 min-h-screen flex flex-col items-center justify-center text-center gap-8'>
 
         {/* Text + Search */}
-        <div className='flex flex-col items-center gap-6'>
+        <div className='flex flex-col items-center gap-6 w-full'>
 
           {/* Trust badge pill — centered */}
           <motion.div variants={fadeInUp} initial="hidden" animate="visible"
@@ -60,7 +73,8 @@ export default function HeroSection() {
           </motion.p>
 
           {/* Search Bar — centered, max-w-2xl */}
-          <motion.div variants={scaleIn} initial="hidden" animate="visible"
+          <motion.form variants={scaleIn} initial="hidden" animate="visible"
+            onSubmit={handleSearch}
             className='relative mt-2 w-full max-w-2xl mx-auto'>
             <div className='flex items-center bg-white rounded-2xl shadow-2xl shadow-black/10 overflow-hidden'>
               <div className='flex items-center gap-2 px-4 py-4 text-slate-400 border-r border-slate-100'>
@@ -73,42 +87,47 @@ export default function HeroSection() {
                 placeholder='Search mess, hostel area, cuisine...'
                 className='flex-1 px-4 py-4 text-slate-800 placeholder-slate-400 text-sm bg-transparent outline-none font-body'
               />
-              <button className='m-2 bg-gray-900 text-white px-6 py-3 rounded-xl font-semibold text-sm flex items-center gap-2 hover:bg-gray-800 transition-colors hover:scale-105 active:scale-95 whitespace-nowrap'>
+              <button type="submit" className='m-2 bg-gray-900 text-white px-6 py-3 rounded-xl font-semibold text-sm flex items-center gap-2 hover:bg-gray-800 transition-colors hover:scale-105 active:scale-95 whitespace-nowrap'>
                 <Search size={16} />
                 <span className='hidden sm:inline'>Search</span>
               </button>
             </div>
-          </motion.div>
+          </motion.form>
 
           {/* Floating Mess Cards row — centered below search */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 w-full max-w-4xl mx-auto">
-            {FLOATING_CARDS.map((card, i) => (
-              <motion.div
-                key={card.name}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0, y: [0, -6, 0] }}
-                transition={{
-                  opacity: { delay: 0.5 + i * 0.15, duration: 0.5 },
-                  y: { delay: 1.2, duration: 3 + i * 0.4, repeat: Infinity, ease: 'easeInOut' }
-                }}
-                className="flex-1 bg-white rounded-2xl p-5 flex items-center gap-4 shadow-xl shadow-orange-900/20 cursor-pointer hover:scale-105 transition-transform duration-200 text-left relative group"
-              >
-                <div className='w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0'>
-                  <span className='text-orange-500 font-bold text-lg'>🍛</span>
-                </div>
-                <div className='flex-1 min-w-0'>
-                  <p className='text-slate-900 font-bold text-sm truncate uppercase tracking-tight'>{card.name}</p>
-                  <p className='text-slate-500 text-xs truncate font-medium'>{card.cuisine} · {card.price}</p>
-                  <div className='flex items-center gap-2 mt-1'>
-                    <Star size={11} className='text-amber-400 fill-amber-400' />
-                    <span className='text-slate-700 text-xs font-bold'>{card.rating}</span>
-                    <span className='text-xs text-emerald-600 font-black px-1.5 py-0.5 bg-emerald-50 rounded'>H:{card.hygiene}</span>
-                  </div>
-                </div>
-                <ArrowRight size={14} className="text-slate-300 group-hover:text-orange-500 transition-colors" />
-              </motion.div>
-            ))}
-          </div>
+          {floatingMesses.length > 0 && (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 w-full max-w-4xl mx-auto">
+              {floatingMesses.map((mess, i) => (
+                <Link key={mess.id} to={`/mess/${mess.id}`} className="flex-1 block">
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: [0, -6, 0] }}
+                    transition={{
+                      opacity: { delay: 0.5 + i * 0.15, duration: 0.5 },
+                      y: { delay: 1.2, duration: 3 + i * 0.4, repeat: Infinity, ease: 'easeInOut' }
+                    }}
+                    className="h-full bg-white rounded-2xl p-5 flex items-center gap-4 shadow-xl shadow-orange-900/20 cursor-pointer hover:scale-105 transition-transform duration-200 text-left relative group"
+                  >
+                    <div className='w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0'>
+                      <span className='text-orange-500 font-bold text-lg'>{mess.is_veg ? '🥗' : '🍛'}</span>
+                    </div>
+                    <div className='flex-1 min-w-0'>
+                      <p className='text-slate-900 font-bold text-sm truncate uppercase tracking-tight'>{mess.name}</p>
+                      <p className='text-slate-500 text-xs truncate font-medium'>{mess.cuisine_type || 'General'} · ₹{Number(mess.price_per_meal || 0).toFixed(0)}/meal</p>
+                      <div className='flex items-center gap-2 mt-1'>
+                        <Star size={11} className='text-amber-400 fill-amber-400' />
+                        <span className='text-slate-700 text-xs font-bold'>{Number(mess.avg_rating || 0).toFixed(1)}</span>
+                        {mess.hygiene_score && (
+                          <span className='text-xs text-emerald-600 font-black px-1.5 py-0.5 bg-emerald-50 rounded'>H:{Number(mess.hygiene_score).toFixed(1)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <ArrowRight size={14} className="text-slate-300 group-hover:text-orange-500 transition-colors" />
+                  </motion.div>
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* Stat pills row — centered */}
           <motion.div variants={fadeInUp} initial="hidden" animate="visible"

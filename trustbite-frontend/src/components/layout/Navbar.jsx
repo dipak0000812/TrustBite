@@ -1,17 +1,32 @@
 import { motion } from 'framer-motion';
 import { useScrolled } from '../../hooks/useScrolled';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut, LayoutDashboard, Heart, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { Menu, X, User, LogOut, LayoutDashboard, Heart, ChevronDown } from 'lucide-react';
+import toast from 'react-hot-toast';
 import useStore from '../../store/useStore';
 
 export default function Navbar() {
   const scrolled = useScrolled();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useStore();
+  const { isAuthenticated, user, logout, isInitializing } = useStore();
   const navigate = useNavigate();
   const dropRef = useRef(null);
+
+  // Close menus on route change
+  useEffect(() => {
+    setOpen(false);
+    setDropdownOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile menu on resize
+  useEffect(() => {
+    const handleResize = () => { if (window.innerWidth >= 768) setOpen(false); };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const handler = (e) => { if (dropRef.current && !dropRef.current.contains(e.target)) setDropdownOpen(false); };
@@ -22,8 +37,12 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     setDropdownOpen(false);
-    navigate('/');
+    setOpen(false);
+    toast.success('Logged out successfully');
+    navigate('/login');
   };
+
+  if (isInitializing) return null;
 
   return (
     <motion.nav
@@ -65,6 +84,26 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* New Heart/User Link Group */}
+          <div className="hidden md:flex items-center">
+            {user?.role === 'student' ? (
+              <Link
+                to="/favourites"
+                className={`p-2 transition-colors relative ${scrolled ? 'text-slate-500 hover:text-orange-500' : 'text-white/80 hover:text-white'}`}
+              >
+                <Heart className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full border-2 border-white"></span>
+              </Link>
+            ) : (
+              <Link
+                to={user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'mess_owner' ? '/owner/dashboard' : '/student/dashboard'}
+                className={`p-2 transition-colors ${scrolled ? 'text-slate-500 hover:text-orange-500' : 'text-white/80 hover:text-white'}`}
+              >
+                <User className="w-5 h-5" />
+              </Link>
+            )}
+          </div>
+
           {/* CTA Group */}
           <div className='hidden md:flex items-center gap-4'>
             {isAuthenticated ? (
@@ -76,9 +115,9 @@ export default function Navbar() {
                   }`}
                 >
                   <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                    {user?.full_name?.[0] || 'U'}
+                    {user?.full_name?.[0]?.toUpperCase() || 'U'}
                   </div>
-                  <span className="max-w-[120px] truncate">{user?.full_name?.split(' ')[0] || 'User'}</span>
+                  <span className="max-w-[120px] truncate">{user?.full_name || 'User'}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -94,9 +133,9 @@ export default function Navbar() {
                       <p className="text-xs text-slate-400 truncate">{user?.email}</p>
                       <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-widest text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">{user?.role}</span>
                     </div>
-                    <Link to="/dashboard" onClick={() => setDropdownOpen(false)}
+                    <Link to={user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'mess_owner' ? '/owner/dashboard' : '/student/dashboard'} onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                      <LayoutDashboard className="w-4 h-4 text-slate-400" /> Dashboard
+                      <LayoutDashboard className="w-4 h-4 text-slate-400" /> {user?.role === 'mess_owner' ? 'Owner Dashboard' : user?.role === 'admin' ? 'Admin Dashboard' : 'Student Dashboard'}
                     </Link>
                     {user?.role === 'student' && (
                       <Link to="/favourites" onClick={() => setDropdownOpen(false)}
@@ -105,7 +144,7 @@ export default function Navbar() {
                       </Link>
                     )}
                     {user?.role === 'admin' && (
-                      <Link to="/admin" onClick={() => setDropdownOpen(false)}
+                      <Link to="/admin/dashboard" onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                         <User className="w-4 h-4 text-slate-400" /> Admin Panel
                       </Link>
@@ -145,8 +184,12 @@ export default function Navbar() {
           <Link to='/discover' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500 transition-colors'>Discover</Link>
           {isAuthenticated ? (
             <>
-              <Link to='/dashboard' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500'>Dashboard</Link>
+              <Link to={user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'mess_owner' ? '/owner/dashboard' : '/student/dashboard'} onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500'>
+                {user?.role === 'mess_owner' ? 'Owner Dashboard' : user?.role === 'admin' ? 'Admin Dashboard' : 'Student Dashboard'}
+              </Link>
               {user?.role === 'student' && <Link to='/favourites' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2'>Favourites</Link>}
+              {user?.role === 'admin' && <Link to='/admin/dashboard' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500'>Admin Panel</Link>}
+              {user?.role === 'mess_owner' && <Link to='/owner/onboarding' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2'>Manage Mess</Link>}
               <button onClick={() => { handleLogout(); setOpen(false); }} className='text-red-500 font-bold py-2 text-left'>Log Out</button>
             </>
           ) : (

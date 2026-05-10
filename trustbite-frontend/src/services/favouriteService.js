@@ -1,22 +1,53 @@
 import api from './api';
 
+const handleError = (err) => {
+  throw new Error(
+    err?.response?.data?.detail ||
+    err?.response?.data?.message ||
+    'Something went wrong'
+  );
+};
+
 export const favouriteService = {
   async getAll() {
-    const res = await api.get('/favourites/');
-    return res.data;
+    try {
+      const res = await api.get('/favourites/');
+
+      return Array.isArray(res.data) ? res.data : [];
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   async add(messId) {
-    const res = await api.post(`/favourites/${messId}`);
-    return res.data;
+    try {
+      const res = await api.post(`/favourites/${messId}`);
+
+      return res.data;
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   async remove(messId) {
-    await api.delete(`/favourites/${messId}`);
+    try {
+      const res = await api.delete(`/favourites/${messId}`);
+
+      return res.data || { success: true };
+    } catch (err) {
+      handleError(err);
+    }
   },
 
   async check(messId) {
-    const res = await api.get(`/favourites/${messId}/check`);
-    return res.data.is_favourited;
+    try {
+      const res = await api.get(
+        `/favourites/${messId}/check`
+      );
+
+      return Boolean(res.data?.is_favourited);
+    } catch (err) {
+      handleError(err);
+    }
   },
 };

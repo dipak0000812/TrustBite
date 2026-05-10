@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { Sparkles, RefreshCw } from 'lucide-react';
-import MessCard from '../cards/MessCard';
+import MessCard from '../MessCard';
 import { MOCK_MESSES } from '../../lib/constants';
 import { fadeInUp, staggerContainer } from '../../lib/motion';
 

@@ -22,6 +22,13 @@ class MessCreate(BaseModel):
     is_fssai_verified: bool = False
     fssai_license:    str | None = None
     tags:             str | None = None
+    gallery_images:   str | None = None
+    owner_phone:      str | None = None
+    breakfast_time:   str | None = None
+    lunch_time:       str | None = None
+    dinner_time:      str | None = None
+    monthly_price:    float | None = None
+    weekly_price:     float | None = None
 
 
 class MessUpdate(BaseModel):
@@ -37,6 +44,13 @@ class MessUpdate(BaseModel):
     hygiene_score:     float | None = None
     is_fssai_verified: bool | None = None
     tags:              str | None = None
+    gallery_images:    str | None = None
+    owner_phone:       str | None = None
+    breakfast_time:    str | None = None
+    lunch_time:        str | None = None
+    dinner_time:       str | None = None
+    monthly_price:     float | None = None
+    weekly_price:      float | None = None
 
 
 class MessOut(BaseModel):
@@ -63,6 +77,14 @@ class MessOut(BaseModel):
     is_fssai_verified: bool
     fssai_license:    str | None = None
     tags:             str | None = None
+    gallery_images:   str | None = None
+    owner_name:       str | None = None
+    owner_phone:      str | None = None
+    breakfast_time:   str | None = None
+    lunch_time:       str | None = None
+    dinner_time:      str | None = None
+    monthly_price:    Decimal | None = None
+    weekly_price:     Decimal | None = None
     is_active:        bool
     created_at:       datetime
     model_config = {'from_attributes': True}

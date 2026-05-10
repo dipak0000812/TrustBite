@@ -1,31 +1,49 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
-  headers: { 'Content-Type': 'application/json' },
 });
 
-// Attach JWT token on every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('trustbite_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Attach JWT token
+api.interceptors.request.use(
+  (config) => {
 
-// Handle 401 globally — redirect to login
+    const token = localStorage.getItem('trustbite_token');
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+
+  (error) => Promise.reject(error)
+);
+
+
+// Handle global auth failures
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
+
+  (response) => response,
+
+  (error) => {
+
+    if (error.response?.status === 401) {
+
       localStorage.removeItem('trustbite_token');
       localStorage.removeItem('trustbite_user');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+
+      // avoid infinite redirects
+      if (
+        !window.location.pathname.includes('/login')
+      ) {
+        toast.error('Session expired. Please login again.');
+        window.location.replace('/login');
       }
     }
-    return Promise.reject(err);
+
+    return Promise.reject(error);
   }
 );
 

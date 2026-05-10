@@ -1,31 +1,28 @@
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, ShieldCheck, ArrowRight } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const messes = [
-  {
-    name: 'Shree Sai Mess', cuisine: 'Maharashtrian', price: 80, rating: 4.7, hygiene: 9.2,
-    tags: [{ label: 'FSSAI ✓', color: 'bg-emerald-50 text-emerald-600' }, { label: 'Veg Only', color: 'bg-emerald-50 text-emerald-600' }, { label: 'Student Fav ⚡', color: 'bg-orange-50 text-orange-600' }],
-    gradient: 'from-orange-400 to-amber-300',
-  },
-  {
-    name: 'Annapoorna Bhojanalay', cuisine: 'South Indian', price: 65, rating: 4.5, hygiene: 8.8,
-    tags: [{ label: 'FSSAI ✓', color: 'bg-emerald-50 text-emerald-600' }, { label: 'Budget', color: 'bg-blue-50 text-blue-600' }],
-    gradient: 'from-rose-400 to-orange-300',
-  },
-  {
-    name: 'Gurudev Mess', cuisine: 'North Indian', price: 95, rating: 4.9, hygiene: 9.5,
-    tags: [{ label: 'FSSAI ✓', color: 'bg-emerald-50 text-emerald-600' }, { label: 'Top Rated', color: 'bg-orange-50 text-orange-600' }, { label: 'Veg + Non-Veg', color: 'bg-slate-100 text-slate-600' }],
-    gradient: 'from-amber-400 to-yellow-300',
-  },
-  {
-    name: 'Sai Krupa Dining', cuisine: 'Gujarati', price: 75, rating: 4.6, hygiene: 9.0,
-    tags: [{ label: 'Veg Only', color: 'bg-emerald-50 text-emerald-600' }, { label: 'Home Style', color: 'bg-orange-50 text-orange-600' }],
-    gradient: 'from-emerald-400 to-teal-300',
-  },
-];
+import { messService } from '../../services/messService';
+import MessCard from '../MessCard';
 
 export default function FeaturedMessSection() {
+  const [messes, setMesses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMesses = async () => {
+      try {
+        const data = await messService.getFeatured(4);
+        setMesses(data);
+      } catch (error) {
+        console.error('Failed to fetch featured messes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMesses();
+  }, []);
+
   return (
     <section className="py-24 lg:py-32 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -55,59 +52,30 @@ export default function FeaturedMessSection() {
 
         {/* Scrollable card row */}
         <div className="flex gap-6 overflow-x-auto pb-4 -mx-6 px-6 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
-          {messes.map((mess, i) => (
-            <motion.div
-              key={mess.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="flex-shrink-0 w-[280px] snap-start group"
-            >
-              <div
-                className="bg-white rounded-[20px] overflow-hidden border border-slate-100 transition-all duration-300 hover:-translate-y-2 h-full flex flex-col"
-                style={{ boxShadow: '0 2px 20px rgba(0,0,0,0.08)' }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 16px 48px rgba(249,115,22,0.16)'}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 20px rgba(0,0,0,0.08)'}
+          {loading ? (
+            <div className="w-full flex justify-center py-12">
+              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+            </div>
+          ) : messes.length > 0 ? (
+            messes.map((mess, i) => (
+              <motion.div
+                key={mess.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="flex-shrink-0 w-[280px] sm:w-[320px] snap-start"
               >
-                {/* Gradient banner */}
-                <div className={`relative h-36 bg-gradient-to-br ${mess.gradient} flex items-center justify-center`}>
-                  <span className="text-5xl opacity-40 group-hover:scale-110 transition-transform duration-500">🍛</span>
-                  {/* Hygiene badge */}
-                  <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-lg shadow-sm flex items-center gap-1">
-                    <span className="text-xs font-bold text-[#22C55E]">H: {mess.hygiene}</span>
-                  </div>
+                <div className="h-full">
+                  <MessCard mess={mess} />
                 </div>
-
-                {/* Body */}
-                <div className="p-5 flex-1 flex flex-col">
-                  <h3 className="font-display font-bold text-base text-[#111827] mb-1 group-hover:text-orange-500 transition-colors">{mess.name}</h3>
-                  <p className="text-[#6B7280] text-xs mb-3">{mess.cuisine} · ₹{mess.price}/meal</p>
-
-                  {/* Stars */}
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, j) => (
-                      <Star key={j} className={`w-3.5 h-3.5 ${j < Math.round(mess.rating) ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
-                    ))}
-                    <span className="ml-1 text-sm font-bold text-[#111827]">{mess.rating}</span>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-5">
-                    {mess.tags.map(tag => (
-                      <span key={tag.label} className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tag.color}`}>{tag.label}</span>
-                    ))}
-                  </div>
-
-                  {/* CTA button */}
-                  <Link to="/discover"
-                    className="mt-auto block text-center py-2.5 rounded-xl border-2 border-slate-100 text-sm font-bold text-[#6B7280] hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all duration-200">
-                    View Details →
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))
+          ) : (
+            <div className="w-full text-center py-12 text-slate-500 font-medium">
+              No featured messes available right now.
+            </div>
+          )}
         </div>
 
         {/* Bottom CTA */}

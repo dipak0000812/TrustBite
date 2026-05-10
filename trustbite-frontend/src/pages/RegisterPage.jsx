@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 import useStore from '../store/useStore';
 
 const RegisterPage = () => {
@@ -29,6 +30,7 @@ const RegisterPage = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (authLoading) return;
     setValidationError('');
     clearAuthError();
 
@@ -42,10 +44,20 @@ const RegisterPage = () => {
     }
 
     try {
-      await register(formData);
-      navigate('/login');
-    } catch {
-      // error is set in store
+      const user = await register(formData);
+      toast.success(`Welcome, ${user.full_name}! Account created.`);
+      
+      // Role-based redirect
+      if (user.role === 'mess_owner') {
+        navigate('/owner/onboarding');
+      } else if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/student/dashboard');
+      }
+    } catch (err) {
+      const msg = err.response?.data?.detail || err.response?.data?.message || 'Registration failed. Please try again.';
+      toast.error(msg);
     }
   };
 
@@ -85,8 +97,8 @@ const RegisterPage = () => {
             </button>
             <button
               type="button"
-              onClick={() => update('role', 'owner')}
-              className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${formData.role === 'owner' ? 'bg-white text-orange-500 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              onClick={() => update('role', 'mess_owner')}
+              className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${formData.role === 'mess_owner' ? 'bg-white text-orange-500 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
             >
               🍽️ Mess Owner
             </button>

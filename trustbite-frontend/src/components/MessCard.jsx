@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 
 const MessCard = ({ mess }) => {
   // Map backend fields to display-friendly values
-  const rating = Number(mess.avg_rating || 0).toFixed(1);
-  const trustScore = mess.trust_score ? Number(mess.trust_score).toFixed(1) : '--';
-  const hygieneScore = mess.hygiene_score ? Number(mess.hygiene_score).toFixed(1) : '--';
-  const price = Number(mess.price_per_meal || 0).toFixed(0);
+  const rating = Number(mess?.avg_rating ?? 0).toFixed(1);
+  const trustScore = mess?.trust_score ? Number(mess.trust_score).toFixed(1) : '--';
+  const hygieneScore = mess?.hygiene_score ? Number(mess.hygiene_score).toFixed(1) : '--';
+  const price = Number(mess?.price_per_meal ?? 0).toFixed(0);
 
   return (
     <div className="group relative bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col h-full">

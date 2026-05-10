@@ -15,6 +15,13 @@ class ReviewCreate(BaseModel):
             raise ValueError('Rating must be 1–5')
         return v
 
+    @field_validator('hygiene_rating')
+    @classmethod
+    def validate_hygiene_rating(cls, v):
+        if v is not None and v not in range(1, 6):
+            raise ValueError('Hygiene rating must be 1–5')
+        return v
+
 
 class ReviewOut(BaseModel):
     id:             uuid.UUID

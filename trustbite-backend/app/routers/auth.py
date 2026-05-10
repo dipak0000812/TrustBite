@@ -1,68 +1,156 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
+
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.user import UserRegister, UserOut, TokenOut
-from app.core.security import hash_password, verify_password, create_access_token, get_current_user
+from app.core.security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    get_current_user,
+    require_role,
+)
 
-router = APIRouter(prefix='/api/auth', tags=['Auth'])
+router = APIRouter(prefix="/api/auth", tags=["Auth"])
+
+ALLOWED_ROLES = ["student", "mess_owner", "admin"]
 
 
-@router.post('/register', response_model=UserOut, status_code=201)
+@router.post("/register", status_code=201)
 def register(data: UserRegister, db: Session = Depends(get_db)):
     """
-    Workflow: Register Page → POST /api/auth/register
-    Success:  201 Created → navigate('/login')
-    Conflict: 409 'Email already registered'
+    Register new user
     """
-    if db.query(User).filter(User.email == data.email).first():
-        raise HTTPException(status_code=409, detail='Email already registered')
-    user = User(
-        full_name=data.full_name,
-        email=data.email,
-        password_hash=hash_password(data.password),
-        role=data.role,
-        college_name=data.college_name,
-        phone=data.phone,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+
+    try:
+        email = data.email.lower().strip()
+
+        if data.role not in ALLOWED_ROLES:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid role selected"
+            )
+
+        existing_user = (
+            db.query(User)
+            .filter(User.email == email)
+            .first()
+        )
+
+        if existing_user:
+            raise HTTPException(
+                status_code=409,
+                detail="Email already registered"
+            )
+
+        user = User(
+            full_name=data.full_name.strip(),
+            email=email,
+            password_hash=hash_password(data.password),
+            role=data.role,
+            college_name=data.college_name,
+            phone=data.phone,
+        )
+
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+        return {
+            "success": True,
+            "message": "User registered successfully",
+            "data": UserOut.model_validate(user)
+        }
+
+    except SQLAlchemyError:
+        db.rollback()
+
+        raise HTTPException(
+            status_code=500,
+            detail="Database error occurred"
+        )
 
 
-@router.post('/login', response_model=TokenOut)
-def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@router.post("/login")
+def login(
+    form: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
     """
-    Workflow: Login Page → POST /api/auth/login
-    IMPORTANT: FastAPI OAuth2 form expects 'username' field (not email).
-    Frontend must send multipart/form-data with username + password.
+    Login endpoint
+
+    IMPORTANT:
+    Frontend must send:
+    application/x-www-form-urlencoded
     """
-    user = db.query(User).filter(User.email == form.username, User.is_active == True).first()
-    if not user or not verify_password(form.password, user.password_hash):
-        raise HTTPException(status_code=401, detail='Incorrect email or password')
-    token = create_access_token({'sub': str(user.id), 'role': user.role})
-    return TokenOut(
-        access_token=token,
-        token_type='bearer',
-        user=UserOut.model_validate(user),
+
+    email = form.username.lower().strip()
+
+    user = (
+        db.query(User)
+        .filter(
+            User.email == email,
+            User.is_active == True
+        )
+        .first()
     )
+
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect email or password"
+        )
+
+    if not verify_password(form.password, user.password_hash):
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect email or password"
+        )
+
+    token = create_access_token(
+        {
+            "sub": str(user.id),
+            "role": user.role,
+        }
+    )
+
+    return {
+        "success": True,
+        "message": "Login successful",
+        "data": {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": UserOut.model_validate(user)
+        }
+    }
 
 
 @router.get('/me', response_model=UserOut)
 def me(current_user: User = Depends(get_current_user)):
-    """Used on every protected page mount to validate token is still valid."""
-    return current_user
+    return UserOut.model_validate(current_user)
 
 
-@router.get('/users', response_model=list[UserOut])
+@router.get("/users")
 def list_users(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role("admin")),
 ):
-    """Admin endpoint — GET /api/auth/users — full user list with roles."""
-    from app.core.security import require_role
-    if current_user.role != 'admin':
-        raise HTTPException(status_code=403, detail='Access denied. Required: admin')
-    return db.query(User).filter(User.is_active == True).order_by(User.created_at.desc()).all()
+    """
+    Admin-only endpoint
+    """
+
+    users = (
+        db.query(User)
+        .filter(User.is_active == True)
+        .order_by(User.created_at.desc())
+        .all()
+    )
+
+    return {
+        "success": True,
+        "message": "Users fetched successfully",
+        "data": [UserOut.model_validate(user) for user in users]
+    }
