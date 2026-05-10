@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useScrolled } from '../../hooks/useScrolled';
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
@@ -49,11 +49,10 @@ export default function Navbar() {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
           ? 'bg-white/90 backdrop-blur-xl shadow-lg shadow-slate-200/50 border-b border-slate-100'
           : 'bg-transparent'
-      }`}
+        }`}
     >
       <div className='max-w-7xl mx-auto px-6 lg:px-8'>
         <div className='flex items-center justify-between h-16 lg:h-20'>
@@ -63,7 +62,7 @@ export default function Navbar() {
             <div className='w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center transform group-hover:rotate-12 transition-transform shadow-lg shadow-orange-500/20'>
               <span className='text-white font-bold text-sm font-mono'>TB</span>
             </div>
-            <span className={`font-display font-black text-xl tracking-tight transition-colors duration-300 ${ scrolled ? 'text-slate-900' : 'text-white' }`}>
+            <span className={`font-display font-black text-xl tracking-tight transition-colors duration-300 ${scrolled ? 'text-slate-900' : 'text-white'}`}>
               Trust<span className={scrolled ? 'text-orange-500' : 'text-white/80'}>Bite</span>
             </span>
           </Link>
@@ -75,11 +74,10 @@ export default function Navbar() {
               { label: 'How It Works', to: '/#how-it-works' },
             ].map(item => (
               <Link key={item.label} to={item.to}
-                className={`text-sm font-bold tracking-tight transition-all duration-300 hover:scale-105 ${
-                  scrolled
+                className={`text-sm font-bold tracking-tight transition-all duration-300 hover:scale-105 ${scrolled
                     ? 'text-slate-600 hover:text-orange-500'
                     : 'text-white/90 hover:text-white'
-                }`}
+                  }`}
               >{item.label}</Link>
             ))}
           </div>
@@ -110,9 +108,8 @@ export default function Navbar() {
               <div className="relative" ref={dropRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className={`flex items-center gap-2 text-sm font-bold transition-all duration-300 px-3 py-2 rounded-full ${
-                    scrolled ? 'text-slate-700 hover:bg-slate-50' : 'text-white hover:bg-white/10'
-                  }`}
+                  className={`flex items-center gap-2 text-sm font-bold transition-all duration-300 px-3 py-2 rounded-full ${scrolled ? 'text-slate-700 hover:bg-slate-50' : 'text-white hover:bg-white/10'
+                    }`}
                 >
                   <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
                     {user?.full_name?.[0]?.toUpperCase() || 'U'}
@@ -158,21 +155,19 @@ export default function Navbar() {
               </div>
             ) : (
               <>
-                <Link to="/login" className={`text-sm font-bold transition-all duration-300 hover:opacity-80 active:scale-95 ${
-                  scrolled ? 'text-slate-900' : 'text-white'
-                }`}>Sign In</Link>
-                <Link to='/discover' className={`text-sm font-black px-6 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg ${
-                  scrolled
+                <Link to="/login" className={`text-sm font-bold transition-all duration-300 hover:opacity-80 active:scale-95 ${scrolled ? 'text-slate-900' : 'text-white'
+                  }`}>Sign In</Link>
+                <Link to='/discover' className={`text-sm font-black px-6 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg ${scrolled
                     ? 'bg-orange-500 text-white shadow-orange-500/20 hover:shadow-orange-500/40'
                     : 'bg-black text-white shadow-black/20 hover:shadow-black/40'
-                }`}>Find a Mess</Link>
+                  }`}>Find a Mess</Link>
               </>
             )}
           </div>
 
           {/* Mobile hamburger */}
           <button className={`md:hidden p-2 rounded-lg transition-colors ${scrolled ? 'text-slate-900 hover:bg-slate-100' : 'text-white hover:bg-white/10'}`} onClick={() => setOpen(!open)}>
-            {open ? <X size={24}/> : <Menu size={24}/>}
+            {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
@@ -206,8 +201,8 @@ export default function Navbar() {
                 </Link>
                 {isAuthenticated ? (
                   <>
-                    <Link to={user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'mess_owner' ? '/owner/dashboard' : '/student/dashboard'} 
-                      onClick={() => setOpen(false)} 
+                    <Link to={user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'mess_owner' ? '/owner/dashboard' : '/student/dashboard'}
+                      onClick={() => setOpen(false)}
                       className='text-slate-700 font-bold text-lg hover:text-orange-500 transition-colors flex items-center justify-between group'>
                       Dashboard <ChevronDown className="w-4 h-4 -rotate-90 text-slate-300 group-hover:text-orange-500" />
                     </Link>
