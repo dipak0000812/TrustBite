@@ -11,7 +11,7 @@ const handleError = (err) => {
 export const messService = {
   async getFeatured(limit = 6) {
     try {
-      const res = await api.get('/messes/featured', {
+      const res = await api.get('/api/messes/featured', {
         params: { limit },
       });
 
@@ -23,7 +23,7 @@ export const messService = {
 
   async getAll(params = {}) {
     try {
-      const res = await api.get('/messes/', { params });
+      const res = await api.get('/api/messes/', { params });
 
       return Array.isArray(res.data) ? res.data : [];
     } catch (err) {
@@ -33,7 +33,7 @@ export const messService = {
 
   async getById(id) {
     try {
-      const res = await api.get(`/messes/${id}`);
+      const res = await api.get(`/api/messes/${id}`);
 
       if (!res.data) {
         throw new Error('Mess not found');
@@ -49,7 +49,7 @@ export const messService = {
     try {
       const params = mealType ? { meal_type: mealType } : {};
 
-      const res = await api.get(`/messes/${messId}/menu`, {
+      const res = await api.get(`/api/messes/${messId}/menu`, {
         params,
       });
 
@@ -61,7 +61,7 @@ export const messService = {
 
   async create(data) {
     try {
-      const res = await api.post('/messes/', data);
+      const res = await api.post('/api/messes/', data);
 
       return res.data;
     } catch (err) {
@@ -71,7 +71,7 @@ export const messService = {
 
   async update(id, data) {
     try {
-      const res = await api.put(`/messes/${id}`, data);
+      const res = await api.put(`/api/messes/${id}`, data);
 
       return res.data;
     } catch (err) {
@@ -81,7 +81,7 @@ export const messService = {
 
   async delete(id) {
     try {
-      const res = await api.delete(`/messes/${id}`);
+      const res = await api.delete(`/api/messes/${id}`);
 
       return res.data || { success: true };
     } catch (err) {
@@ -91,7 +91,7 @@ export const messService = {
 
   async getOwnerMesses() {
     try {
-      const res = await api.get('/messes/owner/mine');
+      const res = await api.get('/api/messes/owner/mine');
 
       return Array.isArray(res.data) ? res.data : [];
     } catch (err) {
@@ -101,28 +101,28 @@ export const messService = {
 
   async addMenuItem(messId, data) {
     try {
-      const res = await api.post(`/messes/${messId}/menu`, data);
+      const res = await api.post(`/api/messes/${messId}/menu`, data);
       return res.data;
     } catch (err) { handleError(err); }
   },
 
   async updateMenuItem(messId, itemId, data) {
     try {
-      const res = await api.put(`/messes/${messId}/menu/${itemId}`, data);
+      const res = await api.put(`/api/messes/${messId}/menu/${itemId}`, data);
       return res.data;
     } catch (err) { handleError(err); }
   },
 
   async deleteMenuItem(messId, itemId) {
     try {
-      await api.delete(`/messes/${messId}/menu/${itemId}`);
+      await api.delete(`/api/messes/${messId}/menu/${itemId}`);
       return true;
     } catch (err) { handleError(err); }
   },
 
   async search(params = {}) {
     try {
-      const res = await api.get('/search/', { params });
+      const res = await api.get('/api/search/', { params });
       return Array.isArray(res.data) ? res.data : [];
     } catch (err) { handleError(err); }
   },

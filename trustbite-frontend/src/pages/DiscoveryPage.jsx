@@ -68,43 +68,43 @@ const DiscoveryPage = () => {
     <div className="min-h-screen" style={{ background: '#F8F4F0' }}>
 
       {/* ─── SECTION 1: Page Header ─── */}
-      <div className="bg-white border-b pt-24 pb-6" style={{ borderColor: '#F3E8DA' }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="bg-white border-b pt-24 pb-6 px-4 sm:px-0" style={{ borderColor: '#F3E8DA' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-            <div>
-              <p className="text-[11px] text-[#9CA3AF] font-medium mb-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            <div className="text-center lg:text-left">
+              <p className="hidden lg:block text-[11px] text-[#9CA3AF] font-bold mb-2 uppercase tracking-widest" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                 <Link to="/" className="hover:text-orange-500 transition-colors">Home</Link>
                 <span className="mx-1.5">/</span>
                 <span className="text-[#6B7280]">Discover</span>
               </p>
-              <h1 className="font-display font-bold text-[28px] text-[#111827] mb-1.5">Discover Messes</h1>
-              <p className="flex items-center gap-1.5 text-[13px]">
+              <h1 className="font-display font-black text-3xl sm:text-4xl text-[#111827] mb-2 leading-tight">Discover Messes</h1>
+              <p className="flex items-center justify-center lg:justify-start gap-1.5 text-[13px]">
                 <MapPin className="w-3.5 h-3.5 text-[#F97316]" />
-                <span className="text-[#F97316] font-medium">Showing 2,400+ verified messes · Pune</span>
+                <span className="text-[#F97316] font-black uppercase tracking-wider">2,400+ Verified · Pune</span>
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
               {/* Search bar */}
-              <div className="relative">
+              <div className="relative w-full sm:w-[280px] lg:w-[340px]">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#F97316]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search mess, area, cuisine..."
-                  className="w-[280px] lg:w-[340px] pl-11 pr-4 py-3 text-[13px] font-medium rounded-full outline-none transition-all duration-200"
+                  placeholder="Search area or cuisine..."
+                  className="w-full pl-11 pr-4 py-3 text-[13px] font-bold rounded-2xl outline-none transition-all duration-200 bg-slate-50"
                   style={{
-                    border: '1.5px solid #F3E8DA',
+                    border: '2px solid #F3E8DA',
                     fontFamily: "'DM Sans', sans-serif",
                   }}
-                  onFocus={e => { e.target.style.borderColor = '#F97316'; e.target.style.boxShadow = '0 0 0 3px rgba(249,115,22,0.12)'; }}
-                  onBlur={e => { e.target.style.borderColor = '#F3E8DA'; e.target.style.boxShadow = 'none'; }}
+                  onFocus={e => { e.target.style.borderColor = '#F97316'; e.target.style.background = 'white'; }}
+                  onBlur={e => { e.target.style.borderColor = '#F3E8DA'; e.target.style.background = '#f8fafc'; }}
                 />
               </div>
               {/* Sort button */}
-              <button className="flex items-center gap-1.5 px-4 py-3 rounded-full text-[13px] font-medium text-[#F97316] transition-colors hover:bg-[#FFF7ED]"
-                style={{ border: '1.5px solid #F97316', fontFamily: "'DM Sans', sans-serif" }}>
-                Sort by <ChevronDown className="w-3.5 h-3.5" />
+              <button className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-6 py-3 rounded-2xl text-[13px] font-black text-[#F97316] transition-all hover:bg-[#FFF7ED] border-2 border-[#F97316]"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                Sort <ChevronDown className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

@@ -11,7 +11,7 @@ const handleError = (err) => {
 export const favouriteService = {
   async getAll() {
     try {
-      const res = await api.get('/favourites/');
+      const res = await api.get('/api/favourites/');
 
       return Array.isArray(res.data) ? res.data : [];
     } catch (err) {
@@ -21,7 +21,7 @@ export const favouriteService = {
 
   async add(messId) {
     try {
-      const res = await api.post(`/favourites/${messId}`);
+      const res = await api.post(`/api/favourites/${messId}`);
 
       return res.data;
     } catch (err) {
@@ -31,7 +31,7 @@ export const favouriteService = {
 
   async remove(messId) {
     try {
-      const res = await api.delete(`/favourites/${messId}`);
+      const res = await api.delete(`/api/favourites/${messId}`);
 
       return res.data || { success: true };
     } catch (err) {
@@ -42,7 +42,7 @@ export const favouriteService = {
   async check(messId) {
     try {
       const res = await api.get(
-        `/favourites/${messId}/check`
+        `/api/favourites/${messId}/check`
       );
 
       return Boolean(res.data?.is_favourited);

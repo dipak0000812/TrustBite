@@ -178,28 +178,63 @@ export default function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      {open && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          className='md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-100 px-6 py-4 flex flex-col gap-3 shadow-xl'>
-          <Link to='/discover' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500 transition-colors'>Discover</Link>
-          {isAuthenticated ? (
-            <>
-              <Link to={user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'mess_owner' ? '/owner/dashboard' : '/student/dashboard'} onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500'>
-                {user?.role === 'mess_owner' ? 'Owner Dashboard' : user?.role === 'admin' ? 'Admin Dashboard' : 'Student Dashboard'}
-              </Link>
-              {user?.role === 'student' && <Link to='/favourites' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2'>Favourites</Link>}
-              {user?.role === 'admin' && <Link to='/admin/dashboard' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2 hover:text-orange-500'>Admin Panel</Link>}
-              {user?.role === 'mess_owner' && <Link to='/owner/onboarding' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2'>Manage Mess</Link>}
-              <button onClick={() => { handleLogout(); setOpen(false); }} className='text-red-500 font-bold py-2 text-left'>Log Out</button>
-            </>
-          ) : (
-            <>
-              <Link to='/login' onClick={() => setOpen(false)} className='text-slate-700 font-bold py-2'>Sign In</Link>
-              <Link to='/register' onClick={() => setOpen(false)} className='bg-orange-500 text-white font-bold px-5 py-3 rounded-full text-center shadow-lg shadow-orange-500/20'>Get Started</Link>
-            </>
-          )}
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className='md:hidden bg-white border-t border-slate-100 overflow-hidden shadow-2xl'
+          >
+            <div className="px-6 py-8 flex flex-col gap-6">
+              {/* User Profile in Mobile Menu */}
+              {isAuthenticated && (
+                <div className="flex items-center gap-4 pb-6 border-b border-slate-50">
+                  <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white text-lg font-black">
+                    {user?.full_name?.[0]?.toUpperCase() || 'U'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-black text-slate-900 truncate">{user?.full_name}</p>
+                    <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-4">
+                <Link to='/discover' onClick={() => setOpen(false)} className='text-slate-700 font-bold text-lg hover:text-orange-500 transition-colors flex items-center justify-between group'>
+                  Discover <ChevronDown className="w-4 h-4 -rotate-90 text-slate-300 group-hover:text-orange-500" />
+                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link to={user?.role === 'admin' ? '/admin/dashboard' : user?.role === 'mess_owner' ? '/owner/dashboard' : '/student/dashboard'} 
+                      onClick={() => setOpen(false)} 
+                      className='text-slate-700 font-bold text-lg hover:text-orange-500 transition-colors flex items-center justify-between group'>
+                      Dashboard <ChevronDown className="w-4 h-4 -rotate-90 text-slate-300 group-hover:text-orange-500" />
+                    </Link>
+                    {user?.role === 'student' && (
+                      <Link to='/favourites' onClick={() => setOpen(false)} className='text-slate-700 font-bold text-lg flex items-center justify-between group'>
+                        Favourites <Heart className="w-4 h-4 text-slate-300" />
+                      </Link>
+                    )}
+                    <button onClick={() => { handleLogout(); setOpen(false); }} className='text-red-500 font-bold text-lg text-left pt-4 border-t border-slate-50'>
+                      Log Out
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-col gap-4 pt-4">
+                    <Link to='/login' onClick={() => setOpen(false)} className='text-slate-900 font-bold text-lg text-center py-4 rounded-2xl border-2 border-slate-100'>
+                      Sign In
+                    </Link>
+                    <Link to='/discover' onClick={() => setOpen(false)} className='bg-orange-500 text-white font-black text-lg py-4 rounded-2xl text-center shadow-lg shadow-orange-500/20'>
+                      Get Started
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

@@ -22,7 +22,7 @@ export const authService = {
     };
 
     const res = await api.post(
-      '/auth/register',
+      '/api/auth/register',
       payload
     );
 
@@ -51,7 +51,7 @@ export const authService = {
     );
 
     const res = await api.post(
-      '/auth/login',
+      '/api/auth/login',
       params,
       {
         headers: {
@@ -70,7 +70,7 @@ export const authService = {
   // ─────────────────────────────
   async getMe() {
 
-    const res = await api.get('/auth/me');
+    const res = await api.get('/api/auth/me');
 
     return res.data;
   },
@@ -81,7 +81,7 @@ export const authService = {
   // ─────────────────────────────
   async getUsers() {
 
-    const res = await api.get('/auth/users');
+    const res = await api.get('/api/auth/users');
 
     return res.data;
   },

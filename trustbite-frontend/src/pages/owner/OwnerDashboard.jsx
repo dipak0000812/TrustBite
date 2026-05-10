@@ -102,38 +102,38 @@ const OwnerDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-black text-slate-900 mb-1">Owner Dashboard</h1>
-              <p className="text-slate-500 font-medium">Managing <span className="font-bold text-orange-500">{mess.name}</span></p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 sm:mb-10 px-2 sm:px-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div className="text-center sm:text-left">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">Owner Dashboard</h1>
+              <p className="text-slate-500 font-bold text-sm">Managing <span className="text-orange-500">{mess.name}</span></p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               {mess.is_fssai_verified ? (
-                <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-xs font-bold">
+                <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider">
                   <CheckCircle2 className="w-3.5 h-3.5" /> FSSAI Verified
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-600 px-3 py-1.5 rounded-full text-xs font-bold">
-                  <AlertCircle className="w-3.5 h-3.5" /> Verification Pending
+                <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider">
+                  <AlertCircle className="w-3.5 h-3.5" /> Pending
                 </span>
               )}
               <Link
-                to="/owner/onboarding"
-                className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-xl font-bold text-sm hover:bg-orange-600 transition-colors"
+                to="/owner/edit"
+                className="inline-flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-xl font-black text-xs hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
               >
-                <Edit3 className="w-4 h-4" /> Edit Mess
+                <Edit3 className="w-3.5 h-3.5" /> Edit Profile
               </Link>
             </div>
           </div>
         </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-          <StatCard icon={Star} label="Avg Rating" value={Number(mess.avg_rating || 0).toFixed(1)} color="text-amber-500" bg="bg-amber-50" />
-          <StatCard icon={MessageSquare} label="Total Reviews" value={mess.total_reviews || 0} color="text-blue-500" bg="bg-blue-50" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-10 px-2 sm:px-0">
+          <StatCard icon={Star} label="Rating" value={Number(mess.avg_rating || 0).toFixed(1)} color="text-amber-500" bg="bg-amber-50" />
+          <StatCard icon={MessageSquare} label="Reviews" value={mess.total_reviews || 0} color="text-blue-500" bg="bg-blue-50" />
           <StatCard icon={TrendingUp} label="Trust Score" value={mess.trust_score ? Number(mess.trust_score).toFixed(1) : '--'} color="text-emerald-500" bg="bg-emerald-50" />
-          <StatCard icon={ShieldCheck} label="Hygiene Score" value={mess.hygiene_score ? Number(mess.hygiene_score).toFixed(1) : '--'} color="text-purple-500" bg="bg-purple-50" />
+          <StatCard icon={ShieldCheck} label="Hygiene" value={mess.hygiene_score ? Number(mess.hygiene_score).toFixed(1) : '--'} color="text-purple-500" bg="bg-purple-50" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

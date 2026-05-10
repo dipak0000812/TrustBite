@@ -87,15 +87,15 @@ const Dashboard = () => {
 
         {/* Profile Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-white p-8 sm:p-12 rounded-[40px] border border-slate-100 shadow-xl shadow-slate-200/40 mb-12 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+          className="bg-white p-6 sm:p-12 rounded-[32px] sm:rounded-[40px] border border-slate-100 shadow-xl shadow-slate-200/40 mb-8 sm:12 flex flex-col md:flex-row items-center gap-6 sm:gap-8 relative overflow-hidden mx-2 sm:mx-0">
           <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl -mr-20 -mt-20" />
-          <div className="w-24 h-24 rounded-full bg-orange-50 flex items-center justify-center border-4 border-white shadow-xl relative z-10">
-            <span className="text-4xl font-black text-orange-500">{user?.full_name?.[0] || 'U'}</span>
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-orange-50 flex items-center justify-center border-4 border-white shadow-xl relative z-10 flex-shrink-0">
+            <span className="text-3xl sm:text-4xl font-black text-orange-500">{user?.full_name?.[0] || 'U'}</span>
           </div>
           <div className="flex-1 text-center md:text-left relative z-10">
-            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-2">Hello, {user?.full_name?.split(' ')[0] || 'User'}!</h1>
-            <p className="text-slate-500 font-medium text-lg mb-4">Welcome to your TrustBite dashboard</p>
-            <span className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-500 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 mb-2 leading-tight">Hello, {user?.full_name?.split(' ')[0] || 'User'}!</h1>
+            <p className="text-slate-500 font-bold text-base sm:text-lg mb-4">Welcome back to TrustBite</p>
+            <span className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-500 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-orange-100/50">
               <ShieldCheck className="w-3.5 h-3.5" /> {roleBadge}
             </span>
           </div>
@@ -103,17 +103,17 @@ const Dashboard = () => {
 
         {/* Stats Row */}
         {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-12 px-2 sm:px-0">
             {[
-              { label: 'Total Messes', value: stats.total_messes, color: 'bg-orange-50 text-orange-600' },
-              { label: 'Students', value: stats.total_students, color: 'bg-blue-50 text-blue-600' },
-              { label: 'Reviews', value: stats.total_reviews, color: 'bg-emerald-50 text-emerald-600' },
-              { label: 'Avg Trust', value: stats.avg_trust_score, color: 'bg-purple-50 text-purple-600' },
+              { label: 'Total Messes', value: stats.total_messes, color: 'text-orange-600', bg: 'bg-orange-50' },
+              { label: 'Students', value: stats.total_students, color: 'text-blue-600', bg: 'bg-blue-50' },
+              { label: 'Reviews', value: stats.total_reviews, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+              { label: 'Avg Trust', value: stats.avg_trust_score, color: 'text-purple-600', bg: 'bg-purple-50' },
             ].map((s, i) => (
               <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
-                <div className={`text-3xl font-black mb-1 ${s.color.split(' ')[1]}`}>{s.value}</div>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{s.label}</div>
+                className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm text-center">
+                <div className={`text-xl sm:text-3xl font-black mb-1 ${s.color}`}>{s.value}</div>
+                <div className="text-[9px] sm:text-xs font-black text-slate-400 uppercase tracking-widest">{s.label}</div>
               </motion.div>
             ))}
           </div>
@@ -129,7 +129,7 @@ const Dashboard = () => {
                 <h2 className="text-2xl font-bold text-slate-900">AI Recommendations</h2>
               </div>
               {Array.isArray(aiMesses) && aiMesses.length > 0 ? (
-                <div className="grid sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 px-2 sm:px-0">
                   {aiMesses.map(m => <MessCard key={m.id} mess={m} />)}
                 </div>
               ) : (
@@ -157,7 +157,7 @@ const Dashboard = () => {
                   <Link to="/favourites" className="text-orange-500 font-bold text-sm hover:underline">View all</Link>
                 </div>
                 {Array.isArray(favourites) && favourites.length > 0 ? (
-                  <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 px-2 sm:px-0">
                     {favourites
                       .filter(f => f?.mess)
                       .slice(0, 4)

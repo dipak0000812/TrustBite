@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminService } from '../services/adminService';
+import { reviewService } from '../services/reviewService';
 import { Skeleton } from '../components/Skeleton';
 
 // ── Shared components ────────────────────────────────────────────
@@ -135,42 +136,42 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <h1 className="text-3xl font-black text-slate-900 mb-1">Admin Control Center</h1>
-          <p className="text-slate-500 font-medium">Moderate messes, manage users, and maintain platform integrity.</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 sm:mb-10 px-2 sm:px-0">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-1">Admin Control Center</h1>
+          <p className="text-slate-500 font-bold text-sm">Moderate platform operations and data.</p>
         </motion.div>
 
         {/* Stats Grid */}
         {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            <StatCard icon={Building2}    label="Active Messes"   value={stats.active_messes}   color="text-orange-500"  bg="bg-orange-50" />
-            <StatCard icon={Users}        label="Total Users"     value={stats.total_users}      color="text-blue-500"    bg="bg-blue-50" />
-            <StatCard icon={MessageSquare} label="Total Reviews"  value={stats.total_reviews}    color="text-emerald-500" bg="bg-emerald-50" />
-            <StatCard icon={TrendingUp}   label="Avg Trust Score" value={stats.avg_trust_score}  color="text-purple-500"  bg="bg-purple-50" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-10 px-2 sm:px-0">
+            <StatCard icon={Building2}    label="Messes"   value={stats.active_messes}   color="text-orange-500"  bg="bg-orange-50" />
+            <StatCard icon={Users}        label="Users"     value={stats.total_users}      color="text-blue-500"    bg="bg-blue-50" />
+            <StatCard icon={MessageSquare} label="Reviews"  value={stats.total_reviews}    color="text-emerald-500" bg="bg-emerald-50" />
+            <StatCard icon={TrendingUp}   label="Avg Trust" value={stats.avg_trust_score}  color="text-purple-500"  bg="bg-purple-50" />
           </div>
         )}
 
         {/* Secondary Stats */}
         {stats && (
-          <div className="grid grid-cols-3 gap-3 mb-8">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8 px-2 sm:px-0">
             {[
-              { label: 'Pending Messes', value: stats.pending_messes,  color: 'text-amber-600',   bg: 'bg-amber-50' },
-              { label: 'Active Owners',  value: stats.total_owners,    color: 'text-orange-600',  bg: 'bg-orange-50' },
-              { label: 'Students',       value: stats.total_students,  color: 'text-blue-600',    bg: 'bg-blue-50' },
+              { label: 'Pending', value: stats.pending_messes,  color: 'text-amber-600',   bg: 'bg-amber-50' },
+              { label: 'Owners',  value: stats.total_owners,    color: 'text-orange-600',  bg: 'bg-orange-50' },
+              { label: 'Students', value: stats.total_students,  color: 'text-blue-600',    bg: 'bg-blue-50' },
             ].map(s => (
-              <div key={s.label} className={`${s.bg} rounded-2xl p-4 text-center`}>
-                <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
-                <div className="text-xs font-bold text-slate-500 mt-0.5">{s.label}</div>
+              <div key={s.label} className={`${s.bg} rounded-2xl p-3 sm:p-4 text-center border border-white/50`}>
+                <div className={`text-lg sm:text-2xl font-black ${s.color}`}>{s.value}</div>
+                <div className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 mb-6 p-1 bg-white rounded-2xl border border-slate-100 shadow-sm">
+        <div className="flex gap-2 mb-6 p-1 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto scrollbar-hide mx-2 sm:mx-0">
           {TABS.map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setActiveTab(key)}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all ${
+              className={`flex-1 min-w-[140px] sm:min-w-0 flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-black transition-all ${
                 activeTab === key ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'
               }`}>
               <Icon className="w-4 h-4" /> {label}
@@ -360,10 +361,7 @@ const ReviewModeration = ({ messes, adminService: svc }) => {
     if (!messId) return;
     setLoadingRev(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/messes/${messId}/reviews`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('trustbite_token')}` }
-      });
-      const data = await res.json();
+      const data = await reviewService.getMessReviews(messId);
       setReviews(Array.isArray(data) ? data : []);
     } catch (e) {
       toast.error('Failed to load reviews');

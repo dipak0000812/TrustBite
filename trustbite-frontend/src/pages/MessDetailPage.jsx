@@ -155,14 +155,14 @@ const MessDetailPage = () => {
             
             {/* Image Gallery */}
             {heroImage ? (
-              <div className="mb-8 space-y-3">
-                <div className="w-full h-[300px] sm:h-[400px] rounded-[32px] overflow-hidden bg-slate-100 shadow-sm border border-slate-200/50">
+              <div className="mb-8 space-y-3 px-2 sm:px-0">
+                <div className="w-full h-[240px] sm:h-[400px] rounded-[24px] sm:rounded-[32px] overflow-hidden bg-slate-100 shadow-sm border border-slate-200/50">
                   <img src={heroImage} alt={mess.name} className="w-full h-full object-cover" />
                 </div>
                 {thumbnails.length > 0 && (
-                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
                     {thumbnails.map((img, i) => (
-                      <div key={i} className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden bg-slate-100 shadow-sm border border-slate-200/50">
+                      <div key={i} className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden bg-slate-100 shadow-sm border border-slate-200/50 snap-start">
                         <img src={img} alt={`${mess.name} view ${i+2}`} className="w-full h-full object-cover" />
                       </div>
                     ))}
@@ -170,18 +170,18 @@ const MessDetailPage = () => {
                 )}
               </div>
             ) : (
-               <div className="mb-8 w-full h-[200px] sm:h-[300px] rounded-[32px] bg-gradient-to-br from-orange-100 to-amber-50 flex items-center justify-center border border-orange-200 shadow-sm">
+               <div className="mb-8 w-full h-[180px] sm:h-[300px] rounded-[24px] sm:rounded-[32px] bg-gradient-to-br from-orange-100 to-amber-50 flex items-center justify-center border border-orange-200 shadow-sm mx-2 sm:mx-0">
                  <span className="text-6xl sm:text-8xl">{mess.is_veg ? '🥗' : '🍛'}</span>
                </div>
             )}
 
             {/* Header & Tags */}
-            <div className="flex justify-between items-start mb-6">
-              <div>
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8 px-2 sm:px-0">
+              <div className="flex-1">
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-3">
                     {tags.map(tag => (
-                      <span key={tag} className="bg-slate-100 text-slate-600 text-[11px] font-bold px-2.5 py-1 rounded-md tracking-wider uppercase">
+                      <span key={tag} className="bg-slate-100 text-slate-600 text-[10px] font-black px-2.5 py-1 rounded-md tracking-wider uppercase">
                         {tag}
                       </span>
                     ))}
@@ -189,69 +189,68 @@ const MessDetailPage = () => {
                 )}
                 <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                   className="text-3xl sm:text-4xl font-black text-slate-900 mb-3 leading-tight">{mess.name}</motion.h1>
-                <div className="flex flex-wrap items-center gap-3 text-slate-500 font-medium text-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-slate-500 font-bold text-sm">
                   <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-orange-500 transition-colors">
                     <MapPin className="w-4 h-4 text-orange-500" /> 
                     <span className="underline decoration-slate-300 underline-offset-4">{mess.address}, {mess.city}</span>
                     <ExternalLink className="w-3 h-3 ml-0.5" />
                   </a>
-                  <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                  <span className="flex items-center gap-1"><Star className="w-4 h-4 text-amber-500 fill-current" /> {mess.avg_rating ? Number(mess.avg_rating).toFixed(1) : '0.0'} ({mess.total_reviews} reviews)</span>
-                  <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest border border-slate-200 px-2 py-0.5 rounded">{mess.is_veg ? '🟢 Veg' : '🔴 Non-Veg'}</span>
+                  <span className="hidden sm:block w-1 h-1 bg-slate-300 rounded-full" />
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1"><Star className="w-4 h-4 text-amber-500 fill-current" /> {mess.avg_rating ? Number(mess.avg_rating).toFixed(1) : '0.0'}</span>
+                    <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                    <span className="text-[10px] font-black uppercase tracking-widest border-2 border-slate-100 px-2 py-0.5 rounded-lg">{mess.is_veg ? '🟢 Veg' : '🔴 Non-Veg'}</span>
+                  </div>
                 </div>
               </div>
               {isAuthenticated && user?.role === 'student' && (
                 <button onClick={toggleFav} disabled={favLoading}
-                  className={`p-3 rounded-2xl border transition-all ${isFav ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20' : 'bg-white border-slate-100 text-slate-600 hover:border-orange-200'} ${favLoading ? 'opacity-70' : ''}`}>
+                  className={`p-4 rounded-2xl border-2 transition-all w-full sm:w-auto flex items-center justify-center ${isFav ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20' : 'bg-white border-slate-100 text-slate-600 hover:border-orange-200'} ${favLoading ? 'opacity-70' : ''}`}>
                   {favLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Heart className={`w-5 h-5 ${isFav ? 'fill-current' : ''}`} />}
+                  <span className="sm:hidden ml-2 font-bold">{isFav ? 'In Favourites' : 'Add to Favourites'}</span>
                 </button>
               )}
             </div>
 
-            {mess.description && <p className="text-lg text-slate-500 leading-relaxed mb-10">{mess.description}</p>}
+            {mess.description && <p className="text-base sm:text-lg text-slate-500 leading-relaxed mb-10 px-2 sm:px-0">{mess.description}</p>}
 
             {/* Trust Breakdown */}
-            <div className="mb-12 bg-white rounded-[32px] border border-slate-100 p-6 sm:p-8">
+            <div className="mb-12 bg-white rounded-[24px] sm:rounded-[32px] border border-slate-100 p-6 sm:p-8 mx-2 sm:mx-0 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                    <Award className="w-5 h-5 text-emerald-500" /> Trust Breakdown
+                  <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-emerald-500" /> Trust Score
                   </h2>
-                  <p className="text-sm text-slate-500 font-medium mt-1">How we calculate the {mess.trust_score ? Number(mess.trust_score).toFixed(1) : '--'} trust score</p>
+                  <p className="text-sm text-slate-500 font-bold mt-1 uppercase tracking-wider text-[11px]">How we calculate reliability</p>
                 </div>
-                <div className="hidden sm:flex w-16 h-16 bg-emerald-500 rounded-2xl items-center justify-center text-white text-2xl font-black shadow-lg shadow-emerald-500/20">
+                <div className="flex w-14 h-14 sm:w-16 sm:h-16 bg-emerald-500 rounded-2xl items-center justify-center text-white text-2xl font-black shadow-lg shadow-emerald-500/20">
                   {mess.trust_score ? Number(mess.trust_score).toFixed(1) : '--'}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Food Quality</p>
-                  <p className="text-2xl font-black text-slate-900 flex items-end gap-1">
-                    {mess.avg_rating ? Number(mess.avg_rating).toFixed(1) : '0.0'} <Star className="w-4 h-4 text-amber-500 fill-current mb-1.5" />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <div className="bg-slate-50 p-4 rounded-2xl">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Quality</p>
+                  <p className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-1">
+                    {mess.avg_rating ? Number(mess.avg_rating).toFixed(1) : '0.0'} <Star className="w-4 h-4 text-amber-500 fill-current" />
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Hygiene</p>
-                  <p className="text-2xl font-black text-slate-900 flex items-end gap-1">
-                    {mess.hygiene_score ? Number(mess.hygiene_score).toFixed(1) : '--'} <ShieldCheck className="w-4 h-4 text-orange-500 mb-1.5" />
+                <div className="bg-slate-50 p-4 rounded-2xl">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Hygiene</p>
+                  <p className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-1">
+                    {mess.hygiene_score ? Number(mess.hygiene_score).toFixed(1) : '--'} <ShieldCheck className="w-4 h-4 text-orange-500" />
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Reviews</p>
-                  <p className="text-2xl font-black text-slate-900">{mess.total_reviews}</p>
+                <div className="bg-slate-50 p-4 rounded-2xl">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reviews</p>
+                  <p className="text-xl sm:text-2xl font-black text-slate-900">{mess.total_reviews}</p>
                 </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">FSSAI Status</p>
+                <div className="bg-slate-50 p-4 rounded-2xl flex flex-col justify-center">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">FSSAI</p>
                   {mess.is_fssai_verified ? (
-                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 text-sm font-bold px-3 py-1.5 rounded-lg mt-1">
-                      <CheckCircle className="w-4 h-4" /> Verified
-                    </span>
+                    <span className="text-emerald-600 text-xs font-black uppercase tracking-wider">Verified ✓</span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 bg-slate-50 text-slate-500 text-sm font-bold px-3 py-1.5 rounded-lg mt-1">
-                      Pending
-                    </span>
+                    <span className="text-slate-400 text-xs font-black uppercase tracking-wider">Pending</span>
                   )}
                 </div>
               </div>
@@ -259,24 +258,24 @@ const MessDetailPage = () => {
 
             {/* Menu */}
             {Array.isArray(menu) && menu.length > 0 && (
-              <div className="mb-12">
+              <div className="mb-12 px-2 sm:px-0">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-slate-900 rounded-xl"><Utensils className="w-5 h-5 text-white" /></div>
-                  <h2 className="text-xl font-bold text-slate-900">Menu ({menu.length} items)</h2>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Today&apos;s Menu</h2>
                 </div>
-                <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden">
+                <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
                   {Array.isArray(mealTypes) && mealTypes.map(type => (
                     <div key={type}>
-                      <div className="bg-slate-50 px-6 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest">{type}</div>
+                      <div className="bg-slate-50 px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">{type}</div>
                       {Array.isArray(menu) && menu.filter(m => (m.meal_type || 'General') === type).map(item => (
                         <div key={item.id} className="px-6 py-4 border-b border-slate-50 flex justify-between items-center hover:bg-slate-50/50 transition-colors">
-                          <div>
-                            <span className="font-bold text-slate-900">{item.name}</span>
-                            {item.description && <p className="text-xs text-slate-400 mt-0.5">{item.description}</p>}
+                          <div className="flex-1 min-w-0 pr-4">
+                            <span className="font-bold text-slate-900 block truncate">{item.name}</span>
+                            {item.description && <p className="text-xs text-slate-400 mt-0.5 truncate">{item.description}</p>}
                           </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <span className={`w-2 h-2 rounded-full ${item.is_veg ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                            {item.price && <span className="font-bold text-slate-700">₹{Number(item.price).toFixed(0)}</span>}
+                          <div className="flex items-center gap-3 text-sm flex-shrink-0">
+                            <span className={`w-2 h-2 rounded-full ${item.is_veg ? 'bg-emerald-500' : 'bg-red-500'}`} title={item.is_veg ? 'Veg' : 'Non-Veg'} />
+                            {item.price && <span className="font-black text-slate-900">₹{Number(item.price).toFixed(0)}</span>}
                           </div>
                         </div>
                       ))}

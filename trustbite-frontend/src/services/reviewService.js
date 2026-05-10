@@ -11,7 +11,7 @@ const handleError = (err) => {
 export const reviewService = {
   async getMessReviews(messId, skip = 0, limit = 20) {
     try {
-      const res = await api.get(`/messes/${messId}/reviews`, {
+      const res = await api.get(`/api/messes/${messId}/reviews`, {
         params: { skip, limit },
       });
 
@@ -34,7 +34,7 @@ export const reviewService = {
       };
 
       const res = await api.post(
-        `/messes/${messId}/reviews`,
+        `/api/messes/${messId}/reviews`,
         payload
       );
 
@@ -47,7 +47,7 @@ export const reviewService = {
   async hasReviewed(messId) {
     try {
       const res = await api.get(
-        `/messes/${messId}/has-reviewed`
+        `/api/messes/${messId}/has-reviewed`
       );
 
       return Boolean(res.data?.has_reviewed);

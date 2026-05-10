@@ -47,7 +47,7 @@ const FavouritesPage = () => {
             <div className="w-10 h-10 bg-slate-200 animate-pulse rounded-xl" />
             <div className="w-48 h-8 bg-slate-200 animate-pulse rounded-lg" />
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[...Array(6)].map((_, i) => <MessCardSkeleton key={i} />)}
           </div>
         </div>
@@ -59,15 +59,15 @@ const FavouritesPage = () => {
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-3 mb-8 px-2 sm:px-0">
             <div className="p-2.5 bg-orange-50 rounded-xl"><Heart className="w-6 h-6 text-orange-500 fill-current" /></div>
-            <h1 className="text-3xl font-black text-slate-900">My Favourites</h1>
-            <span className="bg-orange-50 text-orange-500 px-3 py-1 rounded-full text-sm font-bold">{favourites.length}</span>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900">My Favourites</h1>
+            <span className="bg-orange-50 text-orange-500 px-3 py-1 rounded-full text-xs font-black">{favourites.length}</span>
           </div>
         </motion.div>
 
         {favourites.length > 0 ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 px-2 sm:px-0">
             {favourites.map((fav, i) => fav.mess && (
               <motion.div key={fav.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                 className="relative group/fav">
