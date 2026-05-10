@@ -104,7 +104,13 @@ def login(
             detail="Incorrect email or password"
         )
 
-    if not verify_password(form.password, user.password_hash):
+    try:
+        if not verify_password(form.password, user.password_hash):
+            raise HTTPException(
+                status_code=401,
+                detail="Incorrect email or password"
+            )
+    except Exception:
         raise HTTPException(
             status_code=401,
             detail="Incorrect email or password"
