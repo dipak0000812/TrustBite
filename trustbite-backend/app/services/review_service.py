@@ -135,3 +135,50 @@ def has_reviewed(
     )
 
     return existing is not None
+
+
+def update_review(
+    db: Session,
+    mess_id: uuid.UUID,
+    student_id: uuid.UUID,
+    data: ReviewCreate,
+) -> ReviewOut:
+    review = (
+        db.query(Review)
+        .filter(
+            Review.mess_id == mess_id,
+            Review.student_id == student_id,
+            Review.is_active == True,
+        )
+        .first()
+    )
+
+    if not review:
+        raise HTTPException(
+            status_code=404,
+            detail="Review not found",
+        )
+
+    review.rating = data.rating
+    review.hygiene_rating = data.hygiene_rating
+    review.comment = data.comment
+
+    db.commit()
+    recalculate_aggregates(db, mess_id)
+    db.refresh(review)
+
+    return ReviewOut(
+        id=review.id,
+        mess_id=review.mess_id,
+        student_id=review.student_id,
+        student_name=(
+            review.student.full_name
+            if review.student
+            else "Anonymous"
+        ),
+        rating=review.rating,
+        hygiene_rating=review.hygiene_rating,
+        comment=review.comment,
+        is_active=review.is_active,
+        created_at=review.created_at,
+    )

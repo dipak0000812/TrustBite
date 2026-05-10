@@ -232,3 +232,18 @@ def has_reviewed(
             mess_id,
         )
     }
+
+
+@router.put("/{mess_id}/reviews", response_model=ReviewOut)
+def update_review(
+    mess_id: uuid.UUID,
+    data: ReviewCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("student")),
+):
+    return review_service.update_review(
+        db,
+        mess_id,
+        current_user.id,
+        data,
+    )
