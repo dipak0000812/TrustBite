@@ -110,6 +110,7 @@ def login(
                 status_code=401,
                 detail="Incorrect email or password"
             )
+
     except Exception:
         raise HTTPException(
             status_code=401,

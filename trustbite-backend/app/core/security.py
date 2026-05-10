@@ -37,6 +37,7 @@ def verify_password(
 ) -> bool:
     if len(plain_password.encode("utf-8")) > 72:
         return False
+
     return pwd_context.verify(
         plain_password,
         hashed_password
