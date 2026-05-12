@@ -14,10 +14,22 @@ const MessCard = ({ mess, reason }) => {
       <Link to={`/mess/${mess.id}`} className="flex flex-col h-full">
         {/* Image Container */}
         <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-orange-100 to-amber-50">
-          <div className="w-full h-full flex items-center justify-center">
+          {mess.image_url ? (
+            <img 
+              src={mess.image_url} 
+              alt={mess.name} 
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div className={`w-full h-full flex items-center justify-center ${mess.image_url ? 'hidden' : ''}`}>
             <span className="text-5xl">{mess.is_veg ? '🥗' : '🍛'}</span>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
           {/* Reason Badge */}
           {reason && (
