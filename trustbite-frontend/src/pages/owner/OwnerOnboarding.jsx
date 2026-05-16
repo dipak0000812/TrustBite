@@ -9,13 +9,17 @@ import toast from 'react-hot-toast';
 import useStore from '../../store/useStore';
 import { messService } from '../../services/messService';
 
+import ImageUpload from '../../components/owner/ImageUpload';
+import WeeklyMenu from '../../components/owner/WeeklyMenu';
+
 // ─── Step definitions ───────────────────────────────────────────────────────
 const STEPS = [
   { id: 1, title: 'Owner Identity',  icon: User,      desc: 'Your personal information' },
   { id: 2, title: 'Mess Details',    icon: Building2,  desc: 'About your mess' },
   { id: 3, title: 'Operations',      icon: Clock,      desc: 'Timings & pricing' },
-  { id: 4, title: 'Trust & Hygiene', icon: Shield,     desc: 'FSSAI & safety info' },
-  { id: 5, title: 'Gallery',         icon: Image,      desc: 'Photos & cover image' },
+  { id: 4, title: 'Menu Planning',   icon: Utensils,   desc: 'Your weekly schedule' },
+  { id: 5, title: 'Trust & Hygiene', icon: Shield,     desc: 'FSSAI & safety info' },
+  { id: 6, title: 'Gallery',         icon: Image,      desc: 'Photos & cover image' },
 ];
 
 const inputClass = "w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all bg-white";
@@ -52,12 +56,17 @@ const OwnerOnboarding = () => {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
+  // Separate image states for better UX
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [coverImage, setCoverImage] = useState('');
+  const [weeklyMenu, setWeeklyMenu] = useState({});
+
   const [form, setForm] = useState({
     // Step 2: Mess Details
     name: '',
     description: '',
     address: '',
-    city: '',
+    city: 'Shirpur',
     pincode: '',
     cuisine_type: '',
     is_veg: true,
@@ -71,13 +80,10 @@ const OwnerOnboarding = () => {
     price_per_meal: '',
     weekly_price: '',
     monthly_price: '',
-    // Step 4: Trust
+    // Step 5: Trust
     fssai_license: '',
     is_fssai_verified: false,
     owner_phone: '',
-    // Step 5: Gallery
-    image_url: '',
-    gallery_images: '',
     tags: '',
   });
 
@@ -96,10 +102,16 @@ const OwnerOnboarding = () => {
         return false;
       }
     }
+    if (step === 6) {
+      if (!coverImage) {
+        toast.error('Please upload at least one image and set it as cover');
+        return false;
+      }
+    }
     return true;
   };
 
-  const next = () => { if (validate()) setStep(s => Math.min(s + 1, 5)); };
+  const next = () => { if (validate()) setStep(s => Math.min(s + 1, 6)); };
   const prev = () => setStep(s => Math.max(s - 1, 1));
 
   const handleSubmit = async () => {
@@ -111,6 +123,9 @@ const OwnerOnboarding = () => {
         price_per_meal: parseFloat(form.price_per_meal) || 0,
         weekly_price: form.weekly_price ? parseFloat(form.weekly_price) : null,
         monthly_price: form.monthly_price ? parseFloat(form.monthly_price) : null,
+        image_url: coverImage,
+        gallery_images: galleryImages.join(','),
+        weekly_menu: weeklyMenu
       };
       await messService.create(payload);
       localStorage.setItem('trustbite_owner_onboarding_complete', 'true');
@@ -247,6 +262,20 @@ const OwnerOnboarding = () => {
   const renderStep4 = () => (
     <div className="space-y-4">
       <div className={sectionClass}>
+        <h4 className="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <Utensils className="w-4 h-4 text-orange-500" /> Complete Weekly Menu
+        </h4>
+        <p className="text-xs text-slate-400 mb-6 font-medium">
+          Students use this to decide where to eat today. Keep it updated!
+        </p>
+        <WeeklyMenu menu={weeklyMenu} setMenu={setWeeklyMenu} />
+      </div>
+    </div>
+  );
+
+  const renderStep5 = () => (
+    <div className="space-y-4">
+      <div className={sectionClass}>
         <h4 className="text-sm font-bold text-slate-700 mb-4">FSSAI License</h4>
         <div className="space-y-3">
           <Field label="FSSAI License Number">
@@ -264,36 +293,24 @@ const OwnerOnboarding = () => {
     </div>
   );
 
-  const renderStep5 = () => (
+  const renderStep6 = () => (
     <div className="space-y-4">
       <div className={sectionClass}>
-        <h4 className="text-sm font-bold text-slate-700 mb-4">Cover Image</h4>
-        <Field label="Cover Image URL">
-          <input className={inputClass} placeholder="https://..." value={form.image_url} onChange={e => set('image_url', e.target.value)} />
-        </Field>
-        {form.image_url && (
-          <img src={form.image_url} alt="Cover preview" className="mt-3 w-full h-40 object-cover rounded-2xl border border-slate-200" onError={e => { e.target.style.display = 'none'; }} />
-        )}
-      </div>
-      <div className={sectionClass}>
-        <h4 className="text-sm font-bold text-slate-700 mb-4">Gallery Images</h4>
-        <Field label="Comma-separated image URLs (dining hall, kitchen, etc.)">
-          <textarea
-            className={inputClass}
-            rows={4}
-            placeholder="https://img1.jpg, https://img2.jpg, https://img3.jpg"
-            value={form.gallery_images}
-            onChange={e => set('gallery_images', e.target.value)}
-          />
-        </Field>
-        <p className="text-xs text-slate-400 mt-2">
-          💡 Use any image hosting (Imgur, Cloudinary, etc.) and paste the URLs here.
+        <h4 className="text-sm font-bold text-slate-700 mb-4">Gallery & Cover</h4>
+        <p className="text-xs text-slate-400 mb-6 font-medium">
+          Upload photos of your dining hall, kitchen, and today's special dish.
         </p>
+        <ImageUpload 
+          images={galleryImages} 
+          setImages={setGalleryImages} 
+          coverImage={coverImage} 
+          setCoverImage={setCoverImage} 
+        />
       </div>
     </div>
   );
 
-  const RENDERERS = [null, renderStep1, renderStep2, renderStep3, renderStep4, renderStep5];
+  const RENDERERS = [null, renderStep1, renderStep2, renderStep3, renderStep4, renderStep5, renderStep6];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50/20 to-slate-50 py-12 px-4">
@@ -347,7 +364,7 @@ const OwnerOnboarding = () => {
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
           )}
-          {step < 5 ? (
+          {step < 6 ? (
             <button
               onClick={next}
               className="flex-1 flex items-center justify-center gap-2 bg-orange-500 text-white py-3 rounded-2xl font-bold text-sm hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/25"

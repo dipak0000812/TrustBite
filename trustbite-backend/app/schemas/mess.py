@@ -29,6 +29,7 @@ class MessCreate(BaseModel):
     dinner_time:      str | None = None
     monthly_price:    float | None = None
     weekly_price:     float | None = None
+    weekly_menu:      dict | None = None
 
 
 class MessUpdate(BaseModel):
@@ -51,6 +52,7 @@ class MessUpdate(BaseModel):
     dinner_time:       str | None = None
     monthly_price:     float | None = None
     weekly_price:      float | None = None
+    weekly_menu:       dict | None = None
 
 
 class MessOut(BaseModel):
@@ -85,6 +87,7 @@ class MessOut(BaseModel):
     dinner_time:      str | None = None
     monthly_price:    Decimal | None = None
     weekly_price:     Decimal | None = None
+    weekly_menu:      dict | None = None
     is_active:        bool
     created_at:       datetime
     model_config = {'from_attributes': True}

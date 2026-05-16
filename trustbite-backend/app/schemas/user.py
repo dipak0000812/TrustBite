@@ -35,8 +35,19 @@ class UserOut(BaseModel):
     phone:        str | None = None
     avatar_url:   str | None = None
     is_active:    bool
+    is_onboarding_complete: bool = False
+    preferences:  dict | None = None
     created_at:   datetime
     model_config = {'from_attributes': True}
+
+
+class UserUpdate(BaseModel):
+    full_name:    str | None = None
+    college_name: str | None = None
+    phone:        str | None = None
+    avatar_url:   str | None = None
+    is_onboarding_complete: bool | None = None
+    preferences:  dict | None = None
 
 
 class TokenOut(BaseModel):

@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 from datetime import datetime
 from sqlalchemy import String, Boolean, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.types import Uuid
+from sqlalchemy.types import Uuid, JSON
+from sqlalchemy_json import MutableJson
 from app.models.base import Base
 
 if TYPE_CHECKING:
@@ -26,6 +27,11 @@ class User(Base):
     phone:         Mapped[str | None]   = mapped_column(String(15))
     avatar_url:    Mapped[str | None]   = mapped_column(String)
     is_active:     Mapped[bool]         = mapped_column(Boolean, default=True, nullable=False)
+    
+    # New Onboarding Persistence Fields
+    is_onboarding_complete: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    preferences: Mapped[dict | None] = mapped_column(MutableJson, nullable=True)
+
     created_at:    Mapped[datetime]     = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at:    Mapped[datetime]     = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

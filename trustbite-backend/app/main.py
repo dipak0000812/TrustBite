@@ -7,7 +7,9 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from fastapi.staticfiles import StaticFiles
 from app.routers import auth, messes, favourites, search, ai_router, stats, admin
+import os
 
 app = FastAPI(
     title='TrustBite API',
@@ -108,6 +110,10 @@ app.include_router(search.router)        # /api/search/*
 app.include_router(ai_router.router)     # /api/ai/*
 app.include_router(stats.router)         # /api/stats/*
 app.include_router(admin.router)         # /api/admin/*
+
+# Static files for uploads
+os.makedirs("static/uploads", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # ── Health Check ──────────────────────────────────────────────────

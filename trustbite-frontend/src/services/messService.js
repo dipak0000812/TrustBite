@@ -126,4 +126,19 @@ export const messService = {
       return Array.isArray(res.data) ? res.data : [];
     } catch (err) { handleError(err); }
   },
+
+  async uploadImage(file) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await api.post('/api/messes/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return res.data;
+    } catch (err) {
+      handleError(err);
+    }
+  },
 };

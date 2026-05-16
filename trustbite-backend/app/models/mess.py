@@ -5,7 +5,8 @@ from datetime import datetime
 from decimal import Decimal
 from sqlalchemy import String, Boolean, DateTime, Numeric, Integer, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.types import Uuid
+from sqlalchemy.types import Uuid, JSON
+from sqlalchemy_json import MutableJson
 from app.models.base import Base
 
 if TYPE_CHECKING:
@@ -49,6 +50,7 @@ class Mess(Base):
     dinner_time:      Mapped[str | None]   = mapped_column(String(50))
     monthly_price:    Mapped[Decimal|None] = mapped_column(Numeric(8,2))
     weekly_price:     Mapped[Decimal|None] = mapped_column(Numeric(8,2))
+    weekly_menu:      Mapped[dict | None]  = mapped_column(MutableJson, nullable=True)
     is_active:        Mapped[bool]         = mapped_column(Boolean, default=True, nullable=False)
     created_at:       Mapped[datetime]     = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at:       Mapped[datetime]     = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

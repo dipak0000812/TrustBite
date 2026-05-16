@@ -177,6 +177,25 @@ const useStore = create((set, get) => ({
 
 
   // ─────────────────────────────
+  // Update Profile
+  // ─────────────────────────────
+
+  updateProfile: async (data) => {
+    set({ authLoading: true, authError: null });
+    try {
+      const updatedUser = await authService.updateProfile(data);
+      localStorage.setItem('trustbite_user', JSON.stringify(updatedUser));
+      set({ user: updatedUser, authLoading: false });
+      return updatedUser;
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Update failed';
+      set({ authLoading: false, authError: msg });
+      throw err;
+    }
+  },
+
+
+  // ─────────────────────────────
   // Clear Auth Error
   // ─────────────────────────────
 

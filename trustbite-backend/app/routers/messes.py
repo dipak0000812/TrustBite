@@ -2,7 +2,9 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, File, UploadFile
+import shutil
+import os
 from sqlalchemy.orm import Session
 
 from app.core.security import get_current_user, require_role
@@ -129,6 +131,30 @@ def delete_mess(
     )
 
     return Response(status_code=204)
+
+
+@router.post("/upload", response_model=dict)
+def upload_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(require_role("mess_owner", "admin")),
+):
+    """
+    Upload an image for a mess.
+    Supports both camera and gallery.
+    """
+    os.makedirs("static/uploads", exist_ok=True)
+    
+    file_ext = os.path.splitext(file.filename)[1]
+    file_name = f"{uuid.uuid4()}{file_ext}"
+    file_path = os.path.join("static/uploads", file_name)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    return {
+        "url": f"/static/uploads/{file_name}",
+        "success": True
+    }
 
 
 # ─────────────────────────────────────────────────────────────

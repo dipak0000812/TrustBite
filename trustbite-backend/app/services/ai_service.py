@@ -46,26 +46,81 @@ def preference_to_vector(
     return [1.0, 1.0, price_norm, veg_val] + cuisine_vec  # trust + rating = 1.0 (prefer best)
 
 
+from app.models.user import User
+
 def get_ai_suggestions(
     db:        Session,
+    user:      User,
     cuisine:   str | None = None,
     max_price: float | None = None,
     is_veg:    bool | None = None,
     min_trust: float = 6.0,
     top_n:     int = 3,
 ) -> list[Mess]:
-    messes = db.query(Mess).filter(
+    """
+    Enhanced Recommendation Engine:
+    1. Filter by city & min_trust
+    2. Rank by:
+       - Diet match (Mandatory)
+       - Proximity (Pincode match + Landmark/Area context)
+       - Budget compatibility
+       - Hygiene & Trust scores
+       - Student Priority bonus
+    """
+    prefs = user.preferences or {}
+    student_city = prefs.get('city', user.college_name or 'Shirpur')
+    student_pincode = prefs.get('pincode', '')
+    student_diet = prefs.get('diet', 'Veg')
+    student_budget = prefs.get('budget', 'Medium')
+    student_priority = prefs.get('priority', 'Hygiene')
+
+    # Base Query
+    query = db.query(Mess).filter(
         Mess.is_active == True,
         Mess.trust_score >= min_trust,
-    ).all()
+        Mess.city == student_city
+    )
 
+    messes = query.all()
     if not messes:
         return []
 
-    pref_vec = np.array([preference_to_vector(cuisine, max_price, is_veg)])
-    mess_vecs = np.array([mess_to_vector(m) for m in messes])
+    ranked_messes = []
+    for m in messes:
+        score = 0.0
+        
+        # 1. Diet Match (Critical)
+        if student_diet == 'Veg' and not m.is_veg:
+            score -= 10.0 # Heavy penalty for non-veg if user wants veg
+        elif student_diet == 'Jain' and 'Jain' not in (m.tags or ''):
+            score -= 5.0
+        else:
+            score += 2.0
 
-    scores = cosine_similarity(pref_vec, mess_vecs)[0]  # shape (n_messes,)
-    top_idxs = np.argsort(scores)[::-1][:top_n]
+        # 2. Proximity Boost
+        if student_pincode and m.pincode == student_pincode:
+            score += 3.0
+        
+        # 3. Budget Alignment
+        m_price = float(m.price_per_meal)
+        if student_budget == 'Low' and m_price <= 70: score += 2.0
+        elif student_budget == 'Medium' and 70 < m_price <= 100: score += 2.0
+        elif student_budget == 'High' and m_price > 100: score += 2.0
 
-    return [messes[i] for i in top_idxs]
+        # 4. Quality Metrics
+        score += float(m.hygiene_score or 0) / 2.0
+        score += float(m.trust_score or 0) / 2.0
+        score += float(m.avg_rating or 0)
+
+        # 5. Priority Bonus
+        if 'Hygiene' in student_priority and m.hygiene_score and m.hygiene_score >= 8.5:
+            score += 2.0
+        if 'Price' in student_priority and m_price < 85:
+            score += 2.0
+        
+        ranked_messes.append((m, score))
+
+    # Sort by score descending
+    ranked_messes.sort(key=lambda x: x[1], reverse=True)
+    
+    return [m[0] for m in ranked_messes[:top_n]]

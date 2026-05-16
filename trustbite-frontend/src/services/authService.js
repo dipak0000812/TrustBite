@@ -83,4 +83,12 @@ export const authService = {
 
     return res.data;
   },
+
+  // ─────────────────────────────
+  // Update Profile
+  // ─────────────────────────────
+  async updateProfile(data) {
+    const res = await api.put('/api/auth/profile', data);
+    return res.data;
+  },
 };

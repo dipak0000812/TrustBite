@@ -8,8 +8,13 @@ import useStore from '../../store/useStore';
 const OnboardingPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const { user, updateProfile } = useStore();
   const [prefs, setPrefs] = useState({
+    address: '',
+    area: '',
+    landmark: '',
     city: 'Pune',
+    pincode: '',
     diet: 'Veg',
     budget: 'Medium',
     priority: 'Hygiene'
@@ -18,6 +23,12 @@ const OnboardingPage = () => {
   const totalSteps = 4;
 
   const nextStep = () => {
+    if (step === 1) {
+      if (!prefs.address || !prefs.area || !prefs.city || !prefs.pincode) {
+        toast.error('Please fill all required location fields');
+        return;
+      }
+    }
     if (step < totalSteps) setStep(step + 1);
     else finishOnboarding();
   };
@@ -26,17 +37,26 @@ const OnboardingPage = () => {
     if (step > 1) setStep(step - 1);
   };
 
-  const finishOnboarding = () => {
-    localStorage.setItem('trustbite_user_prefs', JSON.stringify(prefs));
-    localStorage.setItem('trustbite_student_onboarding_complete', 'true');
-    toast.success('Preferences saved! Welcome to TrustBite.');
-    navigate('/student/dashboard');
+  const finishOnboarding = async () => {
+    try {
+      await updateProfile({
+        is_onboarding_complete: true,
+        preferences: prefs
+      });
+      toast.success('Preferences saved! Welcome to TrustBite.');
+      navigate('/student/dashboard');
+    } catch (err) {
+      toast.error('Failed to save preferences. Please try again.');
+    }
   };
 
-  const { user } = useStore();
   React.useEffect(() => {
     if (user && user.role !== 'student') {
       navigate(user.role === 'mess_owner' ? '/owner/dashboard' : '/');
+    }
+    // If onboarding already complete, redirect
+    if (user?.is_onboarding_complete) {
+      navigate('/student/dashboard');
     }
   }, [user, navigate]);
 
@@ -67,24 +87,52 @@ const OnboardingPage = () => {
 
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div key="step1" variants={variants} initial="enter" animate="center" exit="exit" className="space-y-6">
+            <motion.div key="step1" variants={variants} initial="enter" animate="center" exit="exit" className="space-y-4">
               <div>
                 <div className="w-12 h-12 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-4">
                   <MapPin className="w-6 h-6" />
                 </div>
                 <h2 className="text-2xl font-black text-slate-900 mb-2">Where do you stay?</h2>
-                <p className="text-slate-500 font-medium">We'll show you messes nearby.</p>
+                <p className="text-slate-500 font-medium">Detailed location helps us find messes closer to you.</p>
               </div>
               <div className="space-y-3">
-                {['Pune', 'Mumbai', 'Nashik', 'Other'].map(city => (
-                  <button 
-                    key={city}
-                    onClick={() => { setPrefs({...prefs, city}); nextStep(); }}
-                    className={`w-full p-4 rounded-2xl text-left font-bold transition-all border-2 ${prefs.city === city ? 'border-orange-500 bg-orange-50 text-orange-600' : 'border-slate-50 bg-slate-50 text-slate-600 hover:border-slate-200'}`}
-                  >
-                    {city}
-                  </button>
-                ))}
+                <input 
+                  type="text" placeholder="Full Address / PG Name" 
+                  className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-orange-500 outline-none font-bold text-slate-700 transition-all"
+                  value={prefs.address} onChange={e => setPrefs({...prefs, address: e.target.value})}
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <input 
+                    type="text" placeholder="Area / Locality" 
+                    className="p-4 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-orange-500 outline-none font-bold text-slate-700 transition-all"
+                    value={prefs.area} onChange={e => setPrefs({...prefs, area: e.target.value})}
+                  />
+                  <input 
+                    type="text" placeholder="Pincode" 
+                    className="p-4 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-orange-500 outline-none font-bold text-slate-700 transition-all"
+                    value={prefs.pincode} onChange={e => setPrefs({...prefs, pincode: e.target.value})}
+                  />
+                </div>
+                <input 
+                  type="text" placeholder="Landmark (Optional)" 
+                  className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-orange-500 outline-none font-bold text-slate-700 transition-all"
+                  value={prefs.landmark} onChange={e => setPrefs({...prefs, landmark: e.target.value})}
+                />
+                <select 
+                  className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-orange-500 outline-none font-bold text-slate-700 transition-all"
+                  value={prefs.city} onChange={e => setPrefs({...prefs, city: e.target.value})}
+                >
+                  <option value="Pune">Pune</option>
+                  <option value="Mumbai">Mumbai</option>
+                  <option value="Shirpur">Shirpur</option>
+                  <option value="Nashik">Nashik</option>
+                </select>
+                <button 
+                  onClick={nextStep}
+                  className="w-full bg-orange-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-orange-500/20 hover:bg-orange-600 transition-all active:scale-95 mt-2"
+                >
+                  Next Step
+                </button>
               </div>
             </motion.div>
           )}

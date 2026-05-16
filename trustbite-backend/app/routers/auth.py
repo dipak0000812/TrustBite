@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.user import UserRegister, UserOut, TokenOut
+from app.schemas.user import UserRegister, UserOut, TokenOut, UserUpdate
 from app.core.security import (
     hash_password,
     verify_password,
@@ -137,6 +137,23 @@ def login(
 
 @router.get('/me', response_model=UserOut)
 def me(current_user: User = Depends(get_current_user)):
+    return UserOut.model_validate(current_user)
+
+
+@router.put("/profile", response_model=UserOut)
+def update_profile(
+    data: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    update_data = data.model_dump(exclude_unset=True)
+    
+    for field, value in update_data.items():
+        setattr(current_user, field, value)
+    
+    db.commit()
+    db.refresh(current_user)
+    
     return UserOut.model_validate(current_user)
 
 
