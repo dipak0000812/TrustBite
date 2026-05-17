@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  User, Building2, Clock, Shield, Image,
+  User, Building2, Clock, Shield, Image, Utensils,
   ArrowRight, ArrowLeft, CheckCircle2, Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
