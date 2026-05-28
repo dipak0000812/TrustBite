@@ -4,5 +4,6 @@ from app.models.mess import Mess
 from app.models.menu_item import MenuItem
 from app.models.review import Review
 from app.models.favourite import Favourite
+from app.models.token_blacklist import BlacklistedToken
 
-__all__ = ['Base', 'User', 'Mess', 'MenuItem', 'Review', 'Favourite']
+__all__ = ['Base', 'User', 'Mess', 'MenuItem', 'Review', 'Favourite', 'BlacklistedToken']
