@@ -1,6 +1,6 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from app.db.database import get_db
 from app.models.user import User
@@ -53,20 +53,39 @@ def admin_stats(
 
 @router.get('/messes', response_model=list[MessOut])
 def list_all_messes(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
     _: User = Depends(require_role('admin')),
 ):
     """All messes (active + inactive) for admin review."""
-    return db.query(Mess).order_by(Mess.created_at.desc()).all()
+    return (
+        db.query(Mess)
+        .options(joinedload(Mess.owner))
+        .order_by(Mess.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @router.get('/messes/pending', response_model=list[MessOut])
 def list_pending_messes(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
     _: User = Depends(require_role('admin')),
 ):
     """Messes awaiting approval (is_active=False)."""
-    return db.query(Mess).filter(Mess.is_active == False).order_by(Mess.created_at.desc()).all()
+    return (
+        db.query(Mess)
+        .options(joinedload(Mess.owner))
+        .filter(Mess.is_active == False)
+        .order_by(Mess.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @router.patch('/messes/{mess_id}/approve', response_model=MessOut)
@@ -121,11 +140,20 @@ def set_hygiene_score(
 
 @router.get('/users', response_model=list[UserOut])
 def list_all_users(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
     _: User = Depends(require_role('admin')),
 ):
     """All active users."""
-    return db.query(User).filter(User.is_active == True).order_by(User.created_at.desc()).all()
+    return (
+        db.query(User)
+        .filter(User.is_active == True)
+        .order_by(User.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @router.delete('/users/{user_id}', status_code=204)

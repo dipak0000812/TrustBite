@@ -8,6 +8,15 @@ class ReviewCreate(BaseModel):
     hygiene_rating: int | None = None
     comment:        str | None = None
 
+    @field_validator('comment')
+    @classmethod
+    def validate_comment(cls, v):
+        if v is not None:
+            v = v.strip()
+            if len(v) > 1000:
+                raise ValueError('Comment must be 1000 characters or fewer')
+        return v
+
     @field_validator('rating')
     @classmethod
     def validate_rating(cls, v):

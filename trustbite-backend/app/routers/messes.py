@@ -140,21 +140,53 @@ def upload_image(
 ):
     """
     Upload an image for a mess.
-    Supports both camera and gallery.
+
+    Restrictions:
+    - Allowed types: JPEG, PNG, WebP (by extension AND content-type)
+    - Maximum size: 5 MB
     """
+    # ── Type validation ──────────────────────────────────────────
+    ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+    ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
+
+    file_ext = os.path.splitext(file.filename or "")[1].lower()
+    if file_ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+
+    if file.content_type not in ALLOWED_MIME_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Content type not allowed. Allowed: {', '.join(ALLOWED_MIME_TYPES)}"
+        )
+
+    # ── Size validation (max 5 MB) ───────────────────────────────
+    MAX_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+
+    contents = file.file.read()
+    if len(contents) > MAX_SIZE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail="File too large. Maximum allowed size is 5 MB."
+        )
+    file.file.seek(0)  # reset so shutil can re-read
+
+    # ── Save file ────────────────────────────────────────────────
     os.makedirs("static/uploads", exist_ok=True)
-    
-    file_ext = os.path.splitext(file.filename)[1]
+
     file_name = f"{uuid.uuid4()}{file_ext}"
     file_path = os.path.join("static/uploads", file_name)
-    
+
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    
+
     return {
         "url": f"/static/uploads/{file_name}",
         "success": True
     }
+
 
 
 # ─────────────────────────────────────────────────────────────
