@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.mess import Mess
 
 CUISINE_MAP = {
@@ -75,7 +75,7 @@ def get_ai_suggestions(
     student_priority = prefs.get('priority', 'Hygiene')
 
     # Base Query
-    query = db.query(Mess).filter(
+    query = db.query(Mess).options(joinedload(Mess.owner)).filter(
         Mess.is_active == True,
         Mess.trust_score >= min_trust,
         Mess.city == student_city

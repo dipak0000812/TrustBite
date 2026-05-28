@@ -94,7 +94,7 @@ def get_student_favourites(
 ):
     favourites = (
         db.query(Favourite)
-        .options(joinedload(Favourite.mess))
+        .options(joinedload(Favourite.mess).joinedload(Mess.owner))
         .filter(Favourite.student_id == student_id)
         .order_by(Favourite.created_at.desc())
         .all()
