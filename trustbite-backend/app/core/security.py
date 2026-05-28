@@ -35,6 +35,7 @@ def verify_password(
     plain_password: str,
     hashed_password: str
 ) -> bool:
+    # bcrypt truncates at 72 bytes — reject silently instead of comparing truncated hash
     if len(plain_password.encode("utf-8")) > 72:
         return False
 
@@ -49,14 +50,26 @@ def verify_password(
 # ─────────────────────────────────────────────
 
 def create_access_token(data: dict) -> str:
+    """
+    Creates a signed JWT access token.
+
+    Embeds:
+      - exp: expiry timestamp
+      - iat: issued-at timestamp
+      - jti: unique token ID (for future blacklisting)
+      - type: "access" (prevents token confusion — a refresh token
+              can never be accepted where an access token is expected)
+    """
     payload = data.copy()
 
-    expire = datetime.now(timezone.utc) + timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+    now = datetime.now(timezone.utc)
+    expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     payload.update({
-        "exp": expire
+        "exp":  expire,
+        "iat":  now,
+        "jti":  str(uuid.uuid4()),   # unique ID per token
+        "type": "access",            # token type guard
     })
 
     return jwt.encode(
@@ -84,7 +97,7 @@ def get_current_user(
 
     expired_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token expired",
+        detail="Token expired. Please log in again.",
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -95,9 +108,26 @@ def get_current_user(
             algorithms=[settings.ALGORITHM]
         )
 
-        user_id: Optional[str] = payload.get("sub")
+        # Reject any token that isn't an access token
+        # (prevents a refresh/other token being used here)
+        if payload.get("type") != "access":
+            raise credentials_exception
 
+        user_id: Optional[str] = payload.get("sub")
         if user_id is None:
+            raise credentials_exception
+
+        jti: Optional[str] = payload.get("jti")
+        if jti is None:
+            raise credentials_exception
+
+        from app.models.token_blacklist import BlacklistedToken
+        is_blacklisted = (
+            db.query(BlacklistedToken)
+            .filter(BlacklistedToken.jti == jti)
+            .first()
+        )
+        if is_blacklisted:
             raise credentials_exception
 
     except ExpiredSignatureError:
@@ -132,8 +162,9 @@ def get_current_user(
 
 def require_role(*roles):
     """
-    Example:
-    current_user = Depends(require_role("admin"))
+    Usage:
+        current_user = Depends(require_role("admin"))
+        current_user = Depends(require_role("admin", "mess_owner"))
     """
 
     def role_checker(
@@ -146,7 +177,7 @@ def require_role(*roles):
 
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Allowed roles: {allowed_roles}"
+                detail=f"Access denied. Required role(s): {allowed_roles}"
             )
 
         return current_user

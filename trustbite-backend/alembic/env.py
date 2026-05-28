@@ -9,6 +9,29 @@ from alembic import context
 # Append the project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# ── Environment Safety Check ──────────────────────────────────────
+# Prevents accidental migration runs against production database
+# unless ALLOW_PROD_MIGRATIONS=true is explicitly set.
+from app.core.config import settings
+db_url = settings.DATABASE_URL
+is_prod_db = "neon.tech" in db_url or settings.ENVIRONMENT.lower() == "production"
+if is_prod_db and not os.getenv("ALLOW_PROD_MIGRATIONS", "").lower() == "true":
+    raise RuntimeError(
+        "\n=======================================================================\n"
+        "CRITICAL SAFETY WARNING: Accidental production migration detected!\n"
+        "Running migrations against production database is blocked.\n"
+        "If you actually intended to run migrations in production, set the environment\n"
+        "variable ALLOW_PROD_MIGRATIONS=true and run again.\n"
+        "=======================================================================\n"
+    )
+
+# Override sqlalchemy.url in Alembic config with DATABASE_URL from settings
+# (ensuring it uses psycopg2 driver if postgresql:// is used)
+alembic_url = db_url
+if alembic_url.startswith("postgresql://"):
+    alembic_url = alembic_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+context.config.set_main_option("sqlalchemy.url", alembic_url)
+
 from app.models import Base
 
 # this is the Alembic Config object, which provides
