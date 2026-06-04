@@ -114,6 +114,8 @@ const OwnerOnboarding = () => {
   const next = () => { if (validate()) setStep(s => Math.min(s + 1, 6)); };
   const prev = () => setStep(s => Math.max(s - 1, 1));
 
+  const { user, setUser } = useStore();
+
   const handleSubmit = async () => {
     if (!validate()) return;
     setSubmitting(true);
@@ -128,7 +130,12 @@ const OwnerOnboarding = () => {
         weekly_menu: weeklyMenu
       };
       await messService.create(payload);
-      localStorage.setItem('trustbite_owner_onboarding_complete', 'true');
+      
+      // Update store state to mark onboarding complete
+      if (user) {
+        setUser({ ...user, is_onboarding_complete: true });
+      }
+      
       toast.success('Mess registered successfully! 🎉');
       navigate('/owner/dashboard');
     } catch (e) {
@@ -138,10 +145,13 @@ const OwnerOnboarding = () => {
     }
   };
 
-  const { user } = useStore();
   React.useEffect(() => {
-    if (user && user.role !== 'mess_owner') {
-      navigate(user.role === 'student' ? '/student/dashboard' : '/');
+    if (user) {
+      if (user.role !== 'mess_owner') {
+        navigate(user.role === 'student' ? '/student/dashboard' : '/');
+      } else if (user.is_onboarding_complete) {
+        navigate('/owner/dashboard');
+      }
     }
   }, [user, navigate]);
 

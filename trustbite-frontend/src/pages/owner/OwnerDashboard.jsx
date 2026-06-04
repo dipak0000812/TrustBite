@@ -47,12 +47,11 @@ const OwnerDashboard = () => {
           setMesses(data);
           if (data.length > 0) {
              setActiveMess(data[0]);
-             // Mark onboarding complete if they have a mess
-             localStorage.setItem('trustbite_owner_onboarding_complete', 'true');
           } else {
-             // If no mess, check flag
-             const isComplete = localStorage.getItem('trustbite_owner_onboarding_complete') === 'true';
-             if (!isComplete) navigate('/owner/onboarding');
+             // If no mess and onboarding not complete, redirect to onboarding
+             if (!user?.is_onboarding_complete) {
+                navigate('/owner/onboarding');
+             }
           }
         }
       } catch (e) {

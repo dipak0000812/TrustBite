@@ -54,21 +54,19 @@ const LoginPage = () => {
       toast.success(`Welcome back, ${user.full_name}!`);
       
       // Centralized Role-Based Navigation
+      // Use user.is_onboarding_complete from the DB — not stale localStorage flags.
       if (user.role === 'admin') {
-        console.log('[Login] Navigating to Admin Dashboard');
         navigate('/admin/dashboard');
       } else if (user.role === 'mess_owner') {
-        const isOwnerComplete = localStorage.getItem('trustbite_owner_onboarding_complete') === 'true';
-        console.log('[Login] Owner status:', isOwnerComplete ? 'Complete' : 'Pending');
-        navigate(isOwnerComplete ? '/owner/dashboard' : '/owner/onboarding');
+        navigate(user.is_onboarding_complete ? '/owner/dashboard' : '/owner/onboarding');
       } else {
-        // Default to student
-        const isStudentComplete = localStorage.getItem('trustbite_student_onboarding_complete') === 'true';
-        console.log('[Login] Student status:', isStudentComplete ? 'Complete' : 'Pending');
-        navigate(isStudentComplete ? '/student/dashboard' : '/student/onboarding');
+        navigate(user.is_onboarding_complete ? '/student/dashboard' : '/student/onboarding');
       }
     } catch (err) {
-      const msg = err.response?.data?.detail || err.response?.data?.message || 'Invalid credentials. Please try again.';
+      const detail = err.response?.data?.detail;
+      const msg = Array.isArray(detail)
+        ? detail.map(e => e.message).join(', ')
+        : detail || err.response?.data?.message || 'Invalid credentials. Please try again.';
       toast.error(msg);
     }
   };

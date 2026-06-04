@@ -71,8 +71,7 @@ const Dashboard = () => {
       return;
     }
 
-    const isComplete = localStorage.getItem('trustbite_student_onboarding_complete');
-    if (isComplete !== 'true') {
+    if (!user?.is_onboarding_complete) {
       navigate('/student/onboarding');
     }
 
