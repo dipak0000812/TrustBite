@@ -1,92 +1,114 @@
+"""
+Core authentication & authorization helpers.
+
+Provides:
+  - Password hashing / verification  (bcrypt via passlib)
+  - JWT access-token creation        (HS256 signed)
+  - JWT refresh-token creation       (separate type claim)
+  - get_current_user dependency      (validates token, checks blacklist, checks is_active)
+  - require_role() factory           (role-based access guard)
+"""
+
 import uuid
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from typing import Optional
 
-from jose import JWTError, ExpiredSignatureError, jwt
-from passlib.context import CryptContext
-
-from fastapi import Depends, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-
+from jose import ExpiredSignatureError, JWTError, jwt
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db.database import get_db
 
+
+# ── Password context ──────────────────────────────────────────────
+# rounds= is read from settings so it can be tuned without code changes.
 pwd_context = CryptContext(
     schemes=["bcrypt"],
-    deprecated="auto"
+    deprecated="auto",
+    bcrypt__rounds=settings.BCRYPT_ROUNDS,
 )
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/auth/login"
-)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
 
-# ─────────────────────────────────────────────
-# Password Helpers
-# ─────────────────────────────────────────────
+# ── Password helpers ──────────────────────────────────────────────
 
 def hash_password(password: str) -> str:
+    """Hash a plain-text password with bcrypt."""
     return pwd_context.hash(password)
 
 
-def verify_password(
-    plain_password: str,
-    hashed_password: str
-) -> bool:
-    # bcrypt truncates at 72 bytes — reject silently instead of comparing truncated hash
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Verify a plain-text password against its bcrypt hash.
+
+    Rejects passwords > 72 bytes to avoid the silent bcrypt truncation
+    vulnerability — bcrypt silently ignores bytes beyond the 72nd.
+    """
     if len(plain_password.encode("utf-8")) > 72:
         return False
-
-    return pwd_context.verify(
-        plain_password,
-        hashed_password
-    )
+    return pwd_context.verify(plain_password, hashed_password)
 
 
-# ─────────────────────────────────────────────
-# JWT Helpers
-# ─────────────────────────────────────────────
+# ── Token creation ────────────────────────────────────────────────
 
 def create_access_token(data: dict) -> str:
     """
-    Creates a signed JWT access token.
+    Create a short-lived signed JWT access token.
 
     Embeds:
-      - exp: expiry timestamp
-      - iat: issued-at timestamp
-      - jti: unique token ID (for future blacklisting)
-      - type: "access" (prevents token confusion — a refresh token
-              can never be accepted where an access token is expected)
+      - exp  : expiry timestamp
+      - iat  : issued-at timestamp
+      - jti  : unique token ID (used for blacklist on logout)
+      - type : "access" (prevents a refresh token being used here)
     """
     payload = data.copy()
-
     now = datetime.now(timezone.utc)
-    expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-
-    payload.update({
-        "exp":  expire,
-        "iat":  now,
-        "jti":  str(uuid.uuid4()),   # unique ID per token
-        "type": "access",            # token type guard
-    })
-
-    return jwt.encode(
-        payload,
-        settings.SECRET_KEY,
-        algorithm=settings.ALGORITHM
+    payload.update(
+        {
+            "exp": now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+            "iat": now,
+            "jti": str(uuid.uuid4()),
+            "type": "access",
+        }
     )
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
-# ─────────────────────────────────────────────
-# Current User Dependency
-# ─────────────────────────────────────────────
+def create_refresh_token(data: dict) -> str:
+    """
+    Create a long-lived signed JWT refresh token.
 
-def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-):
+    The 'type' claim is 'refresh' — get_current_user explicitly rejects
+    refresh tokens, so they can never be used as access tokens.
+    """
+    payload = data.copy()
+    now = datetime.now(timezone.utc)
+    payload.update(
+        {
+            "exp": now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+            "iat": now,
+            "jti": str(uuid.uuid4()),
+            "type": "refresh",
+        }
+    )
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+# ── Token validation helpers ──────────────────────────────────────
+
+def _decode_token(token: str, expected_type: str, db: Session):
+    """
+    Decode and validate a JWT token.
+
+    Raises HTTPException 401 on any failure (expired, wrong type,
+    blacklisted, user not found / inactive).
+    """
+    from app.models.token_blacklist import BlacklistedToken
     from app.models.user import User
 
     credentials_exception = HTTPException(
@@ -94,7 +116,6 @@ def get_current_user(
         detail="Invalid authentication credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
     expired_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Token expired. Please log in again.",
@@ -102,40 +123,27 @@ def get_current_user(
     )
 
     try:
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[settings.ALGORITHM]
-        )
-
-        # Reject any token that isn't an access token
-        # (prevents a refresh/other token being used here)
-        if payload.get("type") != "access":
-            raise credentials_exception
-
-        user_id: Optional[str] = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-
-        jti: Optional[str] = payload.get("jti")
-        if jti is None:
-            raise credentials_exception
-
-        from app.models.token_blacklist import BlacklistedToken
-        is_blacklisted = (
-            db.query(BlacklistedToken)
-            .filter(BlacklistedToken.jti == jti)
-            .first()
-        )
-        if is_blacklisted:
-            raise credentials_exception
-
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     except ExpiredSignatureError:
         raise expired_exception
-
     except JWTError:
         raise credentials_exception
 
+    # Enforce token-type claim (prevents refresh token being used as access token and vice-versa)
+    if payload.get("type") != expected_type:
+        raise credentials_exception
+
+    user_id: Optional[str] = payload.get("sub")
+    jti: Optional[str] = payload.get("jti")
+
+    if user_id is None or jti is None:
+        raise credentials_exception
+
+    # Check token blacklist (for logged-out tokens)
+    if db.query(BlacklistedToken).filter(BlacklistedToken.jti == jti).first():
+        raise credentials_exception
+
+    # Validate user_id is a valid UUID
     try:
         user_uuid = uuid.UUID(user_id)
     except ValueError:
@@ -143,43 +151,68 @@ def get_current_user(
 
     user = (
         db.query(User)
-        .filter(
-            User.id == user_uuid,
-            User.is_active == True
-        )
+        .filter(User.id == user_uuid, User.is_active == True)  # noqa: E712
         .first()
     )
-
     if not user:
         raise credentials_exception
 
+    return user, payload
+
+
+# ── FastAPI dependencies ──────────────────────────────────────────
+
+def get_current_user(
+    token: Optional[str] = Depends(oauth2_scheme),
+    access_token_cookie: Optional[str] = Cookie(default=None, alias="access_token"),
+    db: Session = Depends(get_db),
+):
+    """
+    Resolve the authenticated user from either:
+      1. Authorization: Bearer <token>  header  (SPA / mobile clients)
+      2. HttpOnly cookie `access_token`          (browser clients — more secure)
+
+    Priority: Authorization header > cookie.
+    """
+    raw_token = token or access_token_cookie
+
+    if not raw_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Cookie stores "Bearer <token>" — strip the prefix if present
+    if raw_token.startswith("Bearer "):
+        raw_token = raw_token[len("Bearer "):]
+
+    user, _ = _decode_token(raw_token, expected_type="access", db=db)
     return user
 
 
-# ─────────────────────────────────────────────
-# Role Guard Factory
-# ─────────────────────────────────────────────
+# ── Role guard factory ────────────────────────────────────────────
 
-def require_role(*roles):
+@lru_cache(maxsize=None)
+def require_role(*roles: str):
     """
+    Returns a FastAPI dependency that enforces role membership.
+
     Usage:
         current_user = Depends(require_role("admin"))
         current_user = Depends(require_role("admin", "mess_owner"))
+
+    The @lru_cache ensures the same roles-tuple always returns the
+    same dependency object — FastAPI then reuses its cached resolution
+    instead of creating a new closure per request.
     """
 
-    def role_checker(
-        current_user=Depends(get_current_user)
-    ):
-
+    def role_checker(current_user=Depends(get_current_user)):
         if current_user.role not in roles:
-
-            allowed_roles = ", ".join(roles)
-
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required role(s): {allowed_roles}"
+                detail=f"Access denied. Required role(s): {', '.join(roles)}",
             )
-
         return current_user
 
     return role_checker

@@ -2,7 +2,7 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, UniqueConstraint, func
+from sqlalchemy import DateTime, ForeignKey, UniqueConstraint, func, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Uuid
 from app.models.base import Base
@@ -21,6 +21,10 @@ class Favourite(Base):
     student_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     mess_id:    Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey('messes.id', ondelete='CASCADE'), nullable=False)
     created_at: Mapped[datetime]  = mapped_column(DateTime(timezone=True), server_default=func.now())
+    is_active:  Mapped[bool]      = mapped_column(Boolean, default=True, nullable=False)
+    updated_at: Mapped[datetime]  = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    # Relationships
     student: Mapped['User'] = relationship('User', back_populates='favourites')
     mess:    Mapped['Mess'] = relationship('Mess', back_populates='favourites')

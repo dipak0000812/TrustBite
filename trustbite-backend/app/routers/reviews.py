@@ -1,12 +1,8 @@
 # app/routers/reviews.py
-
-from fastapi import APIRouter
-
-router = APIRouter(
-    prefix="/api/reviews",
-    tags=["Reviews"]
-)
-
-# Intentionally empty.
-# Reviews are handled inside:
-# /api/messes/{mess_id}/reviews
+#
+# This file is intentionally a stub.
+# All review endpoints live at /api/messes/{mess_id}/reviews
+# (see app/routers/messes.py) because reviews are a sub-resource of a mess.
+#
+# If standalone review endpoints are needed in the future (e.g., GET /api/reviews/mine),
+# add them here and register this router in app/main.py.

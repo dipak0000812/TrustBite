@@ -34,6 +34,9 @@ class User(Base):
 
     created_at:    Mapped[datetime]     = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at:    Mapped[datetime]     = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Soft delete timestamp
+    deleted_at:    Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     messes:     Mapped[list['Mess']]      = relationship('Mess', back_populates='owner', lazy='select')

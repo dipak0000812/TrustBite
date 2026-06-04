@@ -1,6 +1,5 @@
 import sys, os
 from logging.config import fileConfig
-
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
@@ -13,7 +12,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 # Prevents accidental migration runs against production database
 # unless ALLOW_PROD_MIGRATIONS=true is explicitly set.
 from app.core.config import settings
-db_url = settings.DATABASE_URL
+from app.core.db_utils import resolve_db_url_to_ipv4
+
+db_url = resolve_db_url_to_ipv4(settings.DATABASE_URL)
 is_prod_db = "neon.tech" in db_url or settings.ENVIRONMENT.lower() == "production"
 if is_prod_db and not os.getenv("ALLOW_PROD_MIGRATIONS", "").lower() == "true":
     raise RuntimeError(
@@ -32,7 +33,15 @@ if alembic_url.startswith("postgresql://"):
     alembic_url = alembic_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 context.config.set_main_option("sqlalchemy.url", alembic_url)
 
-from app.models import Base
+# ARCH-03: import every model explicitly so autogenerate sees all tables.
+# Base.metadata is only populated for models that have been imported.
+from app.models.base import Base  # noqa: F401
+from app.models.user import User  # noqa: F401
+from app.models.mess import Mess  # noqa: F401
+from app.models.review import Review  # noqa: F401
+from app.models.favourite import Favourite  # noqa: F401
+from app.models.menu_item import MenuItem  # noqa: F401
+from app.models.token_blacklist import BlacklistedToken  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

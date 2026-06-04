@@ -184,6 +184,7 @@ class MessUpdate(BaseModel):
     serves_lunch:      bool | None = None
     serves_dinner:     bool | None = None
     image_url:         str | None = None
+    cuisine_type:      str | None = None
     tags:              str | None = None
     gallery_images:    str | None = None
     owner_phone:       str | None = None
@@ -325,4 +326,5 @@ class MessOut(BaseModel):
     weekly_menu:      dict | None = None
     is_active:        bool
     created_at:       datetime
+    updated_at:       datetime  # LOW-05: added so clients can detect recent changes
     model_config = {'from_attributes': True}
