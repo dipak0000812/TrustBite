@@ -1,5 +1,21 @@
 venv/
 __pycache__/
 *.pyc
-*.env
-.env.example
+
+# Secret files — NEVER commit real credentials
+.env
+.env.*
+
+# Keep the example template for onboarding
+!.env.example
+
+# Static uploads (user content, not source code)
+static/uploads/
+
+# Test / coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking
+.mypy_cache/
