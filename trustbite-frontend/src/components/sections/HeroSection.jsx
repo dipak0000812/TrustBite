@@ -10,6 +10,17 @@ export default function HeroSection() {
   const [floatingMesses, setFloatingMesses] = useState([]);
   const navigate = useNavigate();
 
+  const getCity = () => {
+    try {
+      const userRaw = localStorage.getItem('trustbite_user');
+      if (userRaw) {
+        const u = JSON.parse(userRaw);
+        return u.preferences?.city || 'Pune';
+      }
+    } catch (e) {}
+    return 'Pune';
+  };
+
   useEffect(() => {
     messService.getFeatured(3)
       .then(data => setFloatingMesses(data))
@@ -79,7 +90,7 @@ export default function HeroSection() {
             <div className='flex flex-col sm:flex-row items-stretch sm:items-center bg-white rounded-[24px] sm:rounded-2xl shadow-2xl shadow-black/20 overflow-hidden p-2 sm:p-0'>
               <div className='flex items-center gap-2 px-4 py-3 sm:py-4 text-slate-400 border-b sm:border-b-0 sm:border-r border-slate-100'>
                 <MapPin size={18} className='text-orange-500' />
-                <span className='text-sm text-slate-500 whitespace-nowrap font-bold'>{JSON.parse(localStorage.getItem('trustbite_user_prefs') || '{}').city || 'Pune'}</span>
+                <span className='text-sm text-slate-500 whitespace-nowrap font-bold'>{getCity()}</span>
               </div>
               <input
                 value={query}

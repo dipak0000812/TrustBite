@@ -73,7 +73,7 @@ def get_ai_suggestions(
         score = 0.0
 
         # 1. Diet match
-        if student_diet == "Veg" and not m.is_veg:
+        if student_diet in ("Veg", "Veg Only") and not m.is_veg:
             score -= 10.0   # heavy penalty — never show non-veg to veg user
         elif student_diet == "Jain" and "Jain" not in (m.tags or ""):
             score -= 5.0

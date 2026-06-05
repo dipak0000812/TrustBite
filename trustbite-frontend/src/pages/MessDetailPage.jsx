@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, ShieldCheck, MapPin, ArrowLeft, Heart, Utensils, ClipboardList, Loader2, Send, Award, PhoneCall, MessageCircle, ExternalLink, Clock, CheckCircle, Coffee, Sun, Moon, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, ShieldCheck, MapPin, ArrowLeft, Heart, Utensils, ClipboardList, Loader2, Send, Award, PhoneCall, MessageCircle, ExternalLink, Clock, CheckCircle, Coffee, Sun, Moon, Calendar, ChevronDown, ChevronUp, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import useStore from '../store/useStore';
 import { messService } from '../services/messService';
@@ -287,7 +287,14 @@ const MessDetailPage = () => {
                 <div className="bg-slate-50 p-4 rounded-2xl flex flex-col justify-center">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">FSSAI</p>
                   {mess.is_fssai_verified ? (
-                    <span className="text-emerald-600 text-xs font-black uppercase tracking-wider">Verified ✓</span>
+                    <div className="flex flex-col">
+                      <span className="text-emerald-600 text-xs font-black uppercase tracking-wider">Verified ✓</span>
+                      {mess.fssai_license && (
+                        <span className="text-[9px] text-slate-400 font-mono mt-0.5 truncate" title={mess.fssai_license}>
+                          {mess.fssai_license}
+                        </span>
+                      )}
+                    </div>
                   ) : (
                     <span className="text-slate-400 text-xs font-black uppercase tracking-wider">Pending</span>
                   )}
@@ -666,6 +673,23 @@ const MessDetailPage = () => {
                   </a>
                 </div>
               </div>
+
+              {/* Amenities & Tags */}
+              {tags.length > 0 && (
+                <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Utensils className="w-5 h-5 text-orange-500" />
+                    <h3 className="font-bold text-slate-900 text-sm">Amenities & Tags</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <span key={tag} className="bg-slate-50 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-100/50">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Hygiene Safety Badge */}
               <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-[32px] border border-emerald-100/50 shadow-sm">

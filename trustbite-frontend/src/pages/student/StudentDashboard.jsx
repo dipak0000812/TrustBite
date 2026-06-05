@@ -19,14 +19,13 @@ const Dashboard = () => {
 
   // Get personalized reasoning for a mess
   const getReason = (mess) => {
-    const prefsRaw = localStorage.getItem('trustbite_user_prefs');
-    if (!prefsRaw) return null;
+    const prefs = user?.preferences;
+    if (!prefs) return null;
     try {
-      const prefs = JSON.parse(prefsRaw);
       if (prefs.diet === 'Veg Only' && mess.is_veg) return 'Matches your diet';
       if (prefs.city === mess.city) return 'Near your location';
       if (prefs.budget === 'Low' && mess.price_per_meal < 60) return 'Budget friendly';
-      if (prefs.priority.includes('Hygiene') && mess.hygiene_score > 4.5) return 'Top Hygiene';
+      if (prefs.priority && prefs.priority.includes('Hygiene') && mess.hygiene_score > 4.5) return 'Top Hygiene';
       return 'Top Rated';
     } catch (e) { return null; }
   };
@@ -49,7 +48,7 @@ const Dashboard = () => {
           if (aiData.status === 'fulfilled') {
             // Deduplicate and filter based on diet if Veg Only
             const raw = aiData.value || [];
-            const prefs = JSON.parse(localStorage.getItem('trustbite_user_prefs') || '{}');
+            const prefs = user?.preferences || {};
             let filtered = raw;
             if (prefs.diet === 'Veg Only') {
               filtered = raw.filter(m => m.is_veg);

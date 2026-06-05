@@ -38,8 +38,16 @@ const RegisterPage = () => {
       setValidationError('Passwords do not match');
       return;
     }
-    if (formData.password.length < 6) {
-      setValidationError('Password must be at least 6 characters');
+    const p = formData.password;
+    const errors = [];
+    if (p.length < 8) errors.push('at least 8 characters');
+    if (!/[A-Z]/.test(p)) errors.push('one uppercase letter');
+    if (!/[a-z]/.test(p)) errors.push('one lowercase letter');
+    if (!/[0-9]/.test(p)) errors.push('one digit');
+    if (!/[!@#$%^&*(),.?":{}|<>_\-\+\=\[\]\/\\]/.test(p)) errors.push('one special character');
+    
+    if (errors.length > 0) {
+      setValidationError('Password must contain: ' + errors.join(', '));
       return;
     }
 
@@ -165,6 +173,9 @@ const RegisterPage = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              <p className="text-[10px] text-slate-400 font-bold mt-1 ml-1">
+                Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 special character (e.g. Aryan@123)
+              </p>
               {formData.password && (
                 <div className="mt-2 flex items-center gap-2">
                   <div className="flex-1 flex gap-1">
