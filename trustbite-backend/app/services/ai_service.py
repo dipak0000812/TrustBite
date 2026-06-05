@@ -17,7 +17,7 @@ def get_ai_suggestions(
     cuisine: str | None = None,
     max_price: float | None = None,
     is_veg: bool | None = None,
-    min_trust: float = 6.0,
+    min_trust: float = 0.0,
     top_n: int = 3,
 ) -> list[Mess]:
     """
@@ -44,11 +44,12 @@ def get_ai_suggestions(
     query = (
         db.query(Mess)
         .options(joinedload(Mess.owner))
-        .filter(
-            Mess.is_active == True,       # noqa: E712
-            Mess.trust_score >= min_trust,
-        )
+        .filter(Mess.is_active == True)  # noqa: E712
     )
+    # Only filter by trust_score when a positive threshold is requested.
+    # Default is 0.0 so new messes (trust_score=0.0) are not silently excluded.
+    if min_trust > 0:
+        query = query.filter(Mess.trust_score >= min_trust)
 
     # Apply city filter only when we have a city value
     if student_city:

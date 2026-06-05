@@ -108,6 +108,15 @@ class Mess(Base):
         nullable=False,
     )
 
+    # ── Computed properties ───────────────────────────────────────
+    @property
+    def owner_name(self) -> str | None:
+        """Exposes owner.full_name for Pydantic MessOut serialization."""
+        try:
+            return self.owner.full_name if self.owner else None
+        except Exception:
+            return None
+
     # ── Relationships ─────────────────────────────────────────────
     owner: Mapped["User"] = relationship("User", back_populates="messes")
     reviews: Mapped[list["Review"]] = relationship(

@@ -174,9 +174,9 @@ const MessDetailPage = () => {
 
   const mealTypes = Array.isArray(menu) ? [...new Set(menu.map(m => m.meal_type || 'General'))] : [];
 
-  const galleryImages = mess.gallery_images ? mess.gallery_images.split(',').map(url => url.trim()).filter(Boolean) : (mess.image_url ? [mess.image_url] : []);
-  const heroImage = galleryImages.length > 0 ? galleryImages[0] : null;
-  const thumbnails = galleryImages.slice(1, 4);
+  const allGalleryUrls = mess.gallery_images ? mess.gallery_images.split(',').map(url => url.trim()).filter(Boolean) : [];
+  const heroImage = mess.image_url || (allGalleryUrls.length > 0 ? allGalleryUrls[0] : null);
+  const thumbnails = allGalleryUrls.filter(url => url !== heroImage).slice(0, 3);
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${mess.name}, ${mess.address}, ${mess.city}`)}`;
   const tags = mess.tags ? mess.tags.split(',').map(t => t.trim()).filter(Boolean) : [];

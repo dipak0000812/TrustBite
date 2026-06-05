@@ -136,6 +136,11 @@ export const messService = {
           'Content-Type': 'multipart/form-data',
         },
       });
+      // Convert relative path (/static/uploads/...) to absolute backend URL
+      // so <img> tags resolve against the backend host, not the frontend host.
+      if (res.data?.url && res.data.url.startsWith('/')) {
+        res.data.url = api.defaults.baseURL + res.data.url;
+      }
       return res.data;
     } catch (err) {
       handleError(err);
