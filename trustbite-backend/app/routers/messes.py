@@ -43,12 +43,14 @@ def list_messes(
     min_trust: float | None = None,
     max_price: float | None = None,
     search: str | None = None,
+    latitude: float | None = Query(default=None, ge=-90.0, le=90.0),
+    longitude: float | None = Query(default=None, ge=-180.0, le=180.0),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     return mess_service.get_messes(
-        db, city, cuisine_type, is_veg, min_trust, max_price, search, skip, limit
+        db, city, cuisine_type, is_veg, min_trust, max_price, search, latitude, longitude, skip, limit
     )
 
 

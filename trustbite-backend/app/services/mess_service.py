@@ -9,7 +9,7 @@ import uuid
 from decimal import Decimal
 
 from fastapi import HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_
 from sqlalchemy.orm import Session
 
 from app.models.menu_item import MenuItem
@@ -80,6 +80,8 @@ def get_messes(
     min_trust: float | None = None,
     max_price: float | None = None,
     search: str | None = None,
+    latitude: float | None = None,
+    longitude: float | None = None,
     skip: int = 0,
     limit: int = 20,
 ) -> list[Mess]:
@@ -96,11 +98,23 @@ def get_messes(
     if max_price is not None:
         stmt = stmt.where(Mess.price_per_meal <= max_price)
     if search:
-        stmt = stmt.where(Mess.name.ilike(f"%{search}%"))
+        stmt = stmt.where(
+            or_(
+                Mess.name.ilike(f"%{search}%"),
+                Mess.tags.ilike(f"%{search}%"),
+                Mess.cuisine_type.ilike(f"%{search}%"),
+            )
+        )
+
+    if latitude is not None and longitude is not None:
+        stmt = stmt.order_by(
+            (func.power(Mess.latitude - latitude, 2) + func.power(Mess.longitude - longitude, 2)).asc().nullslast()
+        )
+    else:
+        stmt = stmt.order_by(Mess.trust_score.desc().nullslast())
 
     stmt = (
-        stmt.order_by(Mess.trust_score.desc().nullslast())
-        .offset(skip)
+        stmt.offset(skip)
         .limit(min(limit, 100))
     )
     return list(db.scalars(stmt).all())

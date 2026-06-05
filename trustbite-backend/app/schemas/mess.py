@@ -194,6 +194,8 @@ class MessUpdate(BaseModel):
     monthly_price:     float | None = None
     weekly_price:      float | None = None
     weekly_menu:       dict | None = None
+    latitude:          float | None = None
+    longitude:         float | None = None
 
     @field_validator('name')
     @classmethod
@@ -230,6 +232,20 @@ class MessUpdate(BaseModel):
     @classmethod
     def validate_prices(cls, v):
         return _validate_price(v)
+
+    @field_validator('latitude')
+    @classmethod
+    def validate_latitude(cls, v):
+        if v is not None and not (-90.0 <= v <= 90.0):
+            raise ValueError('Latitude must be between -90 and 90')
+        return v
+
+    @field_validator('longitude')
+    @classmethod
+    def validate_longitude(cls, v):
+        if v is not None and not (-180.0 <= v <= 180.0):
+            raise ValueError('Longitude must be between -180 and 180')
+        return v
 
     @field_validator('owner_phone')
     @classmethod

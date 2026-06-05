@@ -287,3 +287,9 @@ class TestMessPublic:
         """Passing a non-UUID mess_id must return 422, not 500."""
         resp = client.get("/api/messes/not-a-uuid")
         assert resp.status_code == 422
+
+    def test_messes_accept_coordinates(self, client):
+        """Verifies that latitude and longitude parameters are accepted and don't cause errors."""
+        resp = client.get("/api/messes/?latitude=18.5195&longitude=73.8412")
+        assert resp.status_code == 200
+        assert isinstance(resp.json(), list)

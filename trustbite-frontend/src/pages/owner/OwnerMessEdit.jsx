@@ -8,6 +8,7 @@ import {
 import toast from 'react-hot-toast';
 import { messService } from '../../services/messService';
 import { Skeleton } from '../../components/Skeleton';
+import WeeklyMenu from '../../components/owner/WeeklyMenu';
 
 const inputClass = "w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 transition-all bg-white";
 const labelClass = "block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2";
@@ -46,6 +47,7 @@ const OwnerMessEdit = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({});
+  const [weeklyMenu, setWeeklyMenu] = useState({});
 
   useEffect(() => {
     let mounted = true;
@@ -53,6 +55,7 @@ const OwnerMessEdit = () => {
       if (mounted && data.length > 0) {
         const m = data[0];
         setMess(m);
+        setWeeklyMenu(m.weekly_menu || {});
         setForm({
           name: m.name || '',
           description: m.description || '',
@@ -75,6 +78,8 @@ const OwnerMessEdit = () => {
           tags: m.tags || '',
           image_url: m.image_url || '',
           gallery_images: m.gallery_images || '',
+          latitude: m.latitude ? String(m.latitude) : '',
+          longitude: m.longitude ? String(m.longitude) : '',
         });
       }
     }).catch(console.error)
@@ -84,11 +89,41 @@ const OwnerMessEdit = () => {
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by your browser');
+      return;
+    }
+    toast.loading('Detecting location...', { id: 'gps-detect' });
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        set('latitude', String(position.coords.latitude));
+        set('longitude', String(position.coords.longitude));
+        toast.success('Location auto-detected successfully!', { id: 'gps-detect' });
+      },
+      (error) => {
+        console.error(error);
+        let msg = 'Failed to detect location';
+        if (error.code === 1) msg = 'Location permission denied';
+        toast.error(msg, { id: 'gps-detect' });
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     if (!mess) return;
     if (!form.name?.trim()) { toast.error('Mess name is required'); return; }
     if (!form.price_per_meal || isNaN(Number(form.price_per_meal))) { toast.error('Valid price per meal required'); return; }
+    if (form.latitude && (isNaN(Number(form.latitude)) || Number(form.latitude) < -90 || Number(form.latitude) > 90)) {
+      toast.error('Latitude must be a valid number between -90 and 90');
+      return;
+    }
+    if (form.longitude && (isNaN(Number(form.longitude)) || Number(form.longitude) < -180 || Number(form.longitude) > 180)) {
+      toast.error('Longitude must be a valid number between -180 and 180');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -97,6 +132,9 @@ const OwnerMessEdit = () => {
         price_per_meal: parseFloat(form.price_per_meal),
         weekly_price: form.weekly_price ? parseFloat(form.weekly_price) : null,
         monthly_price: form.monthly_price ? parseFloat(form.monthly_price) : null,
+        latitude: form.latitude ? parseFloat(form.latitude) : null,
+        longitude: form.longitude ? parseFloat(form.longitude) : null,
+        weekly_menu: weeklyMenu,
       };
       await messService.update(mess.id, payload);
       toast.success('Mess profile updated!');
@@ -176,7 +214,16 @@ const OwnerMessEdit = () => {
 
           {/* Location */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className={cardClass}>
-            <h3 className="text-sm font-bold text-slate-700 mb-4">Location</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-slate-700">Location</h3>
+              <button
+                type="button"
+                onClick={handleDetectLocation}
+                className="text-xs font-black text-orange-500 hover:text-orange-600 transition-colors flex items-center gap-1 bg-orange-50 px-3 py-1.5 rounded-lg"
+              >
+                📍 Auto-detect GPS
+              </button>
+            </div>
             <div className="space-y-4">
               <Field label="Full Address">
                 <input className={inputClass} value={form.address} onChange={e => set('address', e.target.value)} />
@@ -187,6 +234,14 @@ const OwnerMessEdit = () => {
                 </Field>
                 <Field label="Pincode">
                   <input className={inputClass} value={form.pincode} onChange={e => set('pincode', e.target.value)} maxLength={10} />
+                </Field>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Latitude (Optional)">
+                  <input type="number" step="any" min="-90" max="90" className={inputClass} value={form.latitude} onChange={e => set('latitude', e.target.value)} placeholder="e.g. 18.5912" />
+                </Field>
+                <Field label="Longitude (Optional)">
+                  <input type="number" step="any" min="-180" max="180" className={inputClass} value={form.longitude} onChange={e => set('longitude', e.target.value)} placeholder="e.g. 73.7603" />
                 </Field>
               </div>
             </div>
@@ -235,6 +290,17 @@ const OwnerMessEdit = () => {
                 </Field>
               )}
             </div>
+          </motion.div>
+
+          {/* Weekly Menu */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className={cardClass}>
+            <h3 className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-orange-500" /> Weekly Menu Schedule
+            </h3>
+            <p className="text-xs text-slate-400 mb-5 leading-relaxed">
+              Define the standard weekly menu. Students will see today's corresponding schedule on your mess page.
+            </p>
+            <WeeklyMenu menu={weeklyMenu} setMenu={setWeeklyMenu} />
           </motion.div>
 
           {/* Contact & FSSAI */}

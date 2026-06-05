@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, MapPin, Star, ShieldCheck, ChevronDown, Grid3X3, List, ArrowDown, ArrowRight, Loader2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { messService } from '../services/messService';
 import { MessCardSkeleton } from '../components/Skeleton';
 import MessCard from '../components/MessCard';
@@ -30,6 +31,13 @@ const DiscoveryPage = () => {
   const [activeCuisine, setActiveCuisine] = useState('');
   const [vegOnly, setVegOnly] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
+  
+  // Geolocation states
+  const [nearestOnly, setNearestOnly] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [locating, setLocating] = useState(false);
+  const [budgetFriendly, setBudgetFriendly] = useState(false);
+  const [topTrusted, setTopTrusted] = useState(false);
 
   const fetchMesses = async () => {
     if (fetching) return;
@@ -41,6 +49,12 @@ const DiscoveryPage = () => {
       if (searchQuery) params.search = searchQuery;
       if (activeCuisine) params.cuisine_type = activeCuisine;
       if (vegOnly) params.is_veg = true;
+      if (budgetFriendly) params.max_price = 80;
+      if (topTrusted) params.min_trust = 4.5;
+      if (nearestOnly && userLocation) {
+        params.latitude = userLocation.latitude;
+        params.longitude = userLocation.longitude;
+      }
       const data = await messService.getAll(params);
       
       if (currentQuery === searchQuery) {
@@ -57,10 +71,47 @@ const DiscoveryPage = () => {
     }
   };
 
+  const handleNearestToggle = () => {
+    if (nearestOnly) {
+      setNearestOnly(false);
+      setUserLocation(null);
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        setUserLocation(coords);
+        setNearestOnly(true);
+        setLocating(false);
+        toast.success('Location detected! Sorting by proximity.');
+      },
+      (error) => {
+        console.error('Error detecting location:', error);
+        let msg = 'Failed to detect location';
+        if (error.code === 1) msg = 'Location permission denied';
+        toast.error(msg + '. Using default sorting.');
+        setLocating(false);
+        setNearestOnly(false);
+        setUserLocation(null);
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
   useEffect(() => {
     const t = setTimeout(fetchMesses, 350);
     return () => clearTimeout(t);
-  }, [searchQuery, activeCuisine, vegOnly]);
+  }, [searchQuery, activeCuisine, vegOnly, nearestOnly, userLocation, budgetFriendly, topTrusted]);
 
   const getEmoji = (m) => m.emoji || CUISINE_EMOJI[m.cuisine_type] || '🍛';
 
@@ -141,6 +192,22 @@ const DiscoveryPage = () => {
             {/* Divider */}
             <span className="flex-shrink-0 w-px h-6 mx-1" style={{ background: '#E5E7EB' }} />
 
+            {/* Nearest First */}
+            <button
+              onClick={handleNearestToggle}
+              className="flex-shrink-0 flex items-center gap-1.5 px-[18px] py-2 rounded-full text-[13px] font-medium transition-all duration-150 whitespace-nowrap"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                background: nearestOnly ? '#F97316' : 'white',
+                color: nearestOnly ? 'white' : '#374151',
+                border: `1.5px solid ${nearestOnly ? '#F97316' : '#E5E7EB'}`,
+                boxShadow: nearestOnly ? '0 2px 8px rgba(249,115,22,0.3)' : 'none',
+              }}
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              {locating ? 'Locating...' : 'Nearest First'}
+            </button>
+
             {/* Veg Only */}
             <button
               onClick={() => setVegOnly(!vegOnly)}
@@ -155,6 +222,38 @@ const DiscoveryPage = () => {
             >
               <span className={`w-2 h-2 rounded-full ${vegOnly ? 'bg-white' : 'bg-[#22C55E]'}`} />
               Veg Only
+            </button>
+
+            {/* Budget Friendly */}
+            <button
+              onClick={() => setBudgetFriendly(!budgetFriendly)}
+              className="flex-shrink-0 flex items-center gap-1.5 px-[18px] py-2 rounded-full text-[13px] font-medium transition-all duration-150 whitespace-nowrap"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                background: budgetFriendly ? '#F97316' : 'white',
+                color: budgetFriendly ? 'white' : '#374151',
+                border: `1.5px solid ${budgetFriendly ? '#F97316' : '#E5E7EB'}`,
+                boxShadow: budgetFriendly ? '0 2px 8px rgba(249,115,22,0.3)' : 'none',
+              }}
+            >
+              <span className={`w-2 h-2 rounded-full ${budgetFriendly ? 'bg-white' : 'bg-orange-500'}`} />
+              Budget Friendly (≤ ₹80)
+            </button>
+
+            {/* Top Trusted */}
+            <button
+              onClick={() => setTopTrusted(!topTrusted)}
+              className="flex-shrink-0 flex items-center gap-1.5 px-[18px] py-2 rounded-full text-[13px] font-medium transition-all duration-150 whitespace-nowrap"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                background: topTrusted ? '#10B981' : 'white',
+                color: topTrusted ? 'white' : '#374151',
+                border: `1.5px solid ${topTrusted ? '#10B981' : '#E5E7EB'}`,
+                boxShadow: topTrusted ? '0 2px 8px rgba(16,185,129,0.3)' : 'none',
+              }}
+            >
+              <span className={`w-2 h-2 rounded-full ${topTrusted ? 'bg-white' : 'bg-[#10B981]'}`} />
+              Top Trusted (≥ 4.5)
             </button>
           </div>
 

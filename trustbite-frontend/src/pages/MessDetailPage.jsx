@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Star, ShieldCheck, MapPin, ArrowLeft, Heart, Utensils, ClipboardList, Loader2, Send, Award, PhoneCall, MessageCircle, ExternalLink, Clock, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, ShieldCheck, MapPin, ArrowLeft, Heart, Utensils, ClipboardList, Loader2, Send, Award, PhoneCall, MessageCircle, ExternalLink, Clock, CheckCircle, Coffee, Sun, Moon, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import useStore from '../store/useStore';
 import { messService } from '../services/messService';
@@ -24,6 +24,7 @@ const MessDetailPage = () => {
   // Review form
   const [reviewForm, setReviewForm] = useState({ rating: 5, hygiene_rating: 5, comment: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [showFullWeek, setShowFullWeek] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -293,6 +294,155 @@ const MessDetailPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Weekly Menu Schedule */}
+            {mess?.weekly_menu && Object.keys(mess.weekly_menu).length > 0 && (
+              <div className="mb-12 px-2 sm:px-0">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-orange-500 rounded-xl">
+                      <Calendar className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Today's Menu Schedule</h2>
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-0.5">{(() => {
+                        const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                        return DAYS[new Date().getDay()];
+                      })()}'s Plan</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowFullWeek(!showFullWeek)}
+                    className="flex items-center gap-1.5 text-xs font-black text-orange-500 hover:text-orange-600 bg-orange-50 px-3 py-2 rounded-xl transition-all"
+                  >
+                    {showFullWeek ? (
+                      <>Hide Week <ChevronUp className="w-3.5 h-3.5" /></>
+                    ) : (
+                      <>View Week <ChevronDown className="w-3.5 h-3.5" /></>
+                    )}
+                  </button>
+                </div>
+
+                {/* Today's Meals Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  {/* Breakfast Card */}
+                  {mess.serves_breakfast && (
+                    <div className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between min-h-[140px] hover:shadow-md transition-shadow">
+                      <div>
+                        <span className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                          <Coffee className="w-4 h-4 text-orange-500" /> Breakfast
+                        </span>
+                        <p className="text-slate-800 font-medium text-sm leading-relaxed whitespace-pre-line">
+                          {(() => {
+                            const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                            const todayDay = DAYS[new Date().getDay()];
+                            return mess.weekly_menu[todayDay]?.breakfast || 'No menu set';
+                          })()}
+                        </p>
+                      </div>
+                      {mess.breakfast_time && (
+                        <p className="text-[10px] text-slate-400 font-bold mt-4">{mess.breakfast_time}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Lunch Card */}
+                  {mess.serves_lunch && (
+                    <div className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between min-h-[140px] hover:shadow-md transition-shadow">
+                      <div>
+                        <span className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                          <Sun className="w-4 h-4 text-amber-500" /> Lunch
+                        </span>
+                        <p className="text-slate-800 font-medium text-sm leading-relaxed whitespace-pre-line">
+                          {(() => {
+                            const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                            const todayDay = DAYS[new Date().getDay()];
+                            return mess.weekly_menu[todayDay]?.lunch || 'No menu set';
+                          })()}
+                        </p>
+                      </div>
+                      {mess.lunch_time && (
+                        <p className="text-[10px] text-slate-400 font-bold mt-4">{mess.lunch_time}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Dinner Card */}
+                  {mess.serves_dinner && (
+                    <div className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm flex flex-col justify-between min-h-[140px] hover:shadow-md transition-shadow">
+                      <div>
+                        <span className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">
+                          <Moon className="w-4 h-4 text-indigo-500" /> Dinner
+                        </span>
+                        <p className="text-slate-800 font-medium text-sm leading-relaxed whitespace-pre-line">
+                          {(() => {
+                            const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                            const todayDay = DAYS[new Date().getDay()];
+                            return mess.weekly_menu[todayDay]?.dinner || 'No menu set';
+                          })()}
+                        </p>
+                      </div>
+                      {mess.dinner_time && (
+                        <p className="text-[10px] text-slate-400 font-bold mt-4">{mess.dinner_time}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Full Week Accordion */}
+                <AnimatePresence>
+                  {showFullWeek && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm space-y-4">
+                        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
+                          const todayName = (() => {
+                            const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                            return DAYS[new Date().getDay()];
+                          })();
+                          const isToday = day === todayName;
+                          const dayMenu = mess.weekly_menu[day] || {};
+                          return (
+                            <div key={day} className={`p-4 rounded-2xl border transition-all ${isToday ? 'border-orange-200 bg-orange-50/20' : 'border-slate-100'}`}>
+                              <div className="flex items-center gap-2 mb-3">
+                                <span className={`w-2.5 h-2.5 rounded-full ${isToday ? 'bg-orange-500 animate-pulse' : 'bg-slate-300'}`} />
+                                <span className={`font-black text-sm ${isToday ? 'text-orange-600' : 'text-slate-700'}`}>{day}</span>
+                                {isToday && <span className="text-[9px] bg-orange-500 text-white font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Today</span>}
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                                {mess.serves_breakfast && day !== 'Sunday' && (
+                                  <div>
+                                    <span className="font-bold text-slate-400 uppercase tracking-widest text-[9px] block mb-1">Breakfast</span>
+                                    <span className="text-slate-600 font-medium">{dayMenu.breakfast || 'Not set'}</span>
+                                  </div>
+                                )}
+                                {mess.serves_lunch && (
+                                  <div>
+                                    <span className="font-bold text-slate-400 uppercase tracking-widest text-[9px] block mb-1">Lunch {day === 'Sunday' && '🔥'}</span>
+                                    <span className="text-slate-600 font-medium">{dayMenu.lunch || 'Not set'}</span>
+                                  </div>
+                                )}
+                                {mess.serves_dinner && (
+                                  <div>
+                                    <span className="font-bold text-slate-400 uppercase tracking-widest text-[9px] block mb-1">Dinner</span>
+                                    <span className="text-slate-600 font-medium">{dayMenu.dinner || 'Not set'}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
 
             {/* Menu */}
             {Array.isArray(menu) && menu.length > 0 && (
