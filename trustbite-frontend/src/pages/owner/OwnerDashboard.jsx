@@ -123,9 +123,9 @@ const OwnerDashboard = () => {
               <p className="text-slate-500 font-bold text-sm">Managing <span className="text-orange-500">{mess.name}</span></p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-3">
-              {mess.is_fssai_verified ? (
+              {mess.is_active ? (
                 <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> FSSAI Verified
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Active
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider">

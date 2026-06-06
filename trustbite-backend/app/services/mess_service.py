@@ -44,7 +44,7 @@ def create_mess(
         total_reviews=0,
         trust_score=Decimal("0.0"),
         hygiene_score=Decimal("0.0"),
-        is_active=True,
+        is_active=False,
     )
     db.add(mess)
 
@@ -133,7 +133,7 @@ def get_featured_messes(db: Session, limit: int = 6) -> list[Mess]:
 def get_owner_messes(db: Session, owner_id: uuid.UUID) -> list[Mess]:
     stmt = (
         select(Mess)
-        .where(Mess.owner_id == owner_id, Mess.is_active == True)  # noqa: E712
+        .where(Mess.owner_id == owner_id)
         .order_by(Mess.created_at.desc())
     )
     return list(db.scalars(stmt).all())
