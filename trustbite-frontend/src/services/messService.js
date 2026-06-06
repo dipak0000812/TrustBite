@@ -1,8 +1,21 @@
 import api from './api';
 
 const handleError = (err) => {
+  const detail = err?.response?.data?.detail;
+  if (Array.isArray(detail)) {
+    const msg = detail
+      .map((d) => {
+        const field = d.field 
+          ? d.field.replace('body \u2192 ', '') 
+          : (d.loc ? d.loc[d.loc.length - 1] : '');
+        const message = d.message || d.msg || 'Invalid value';
+        return field ? `${field}: ${message}` : message;
+      })
+      .join(', ');
+    throw new Error(msg);
+  }
   throw new Error(
-    err?.response?.data?.detail ||
+    (typeof detail === 'string' ? detail : null) ||
     err?.response?.data?.message ||
     'Something went wrong'
   );

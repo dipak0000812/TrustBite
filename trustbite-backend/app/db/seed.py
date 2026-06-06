@@ -43,6 +43,13 @@ def _confirm_environment():
 
 DEMO_USERS = [
     {
+        "full_name": "TrustBite Admin",
+        "email": "trustbite09@gmail.com",
+        "password_hash": hash_password("Trustbite@03"),
+        "role": "admin",
+        "is_onboarding_complete": True,
+    },
+    {
         "full_name": "Vikram Admin",
         "email": "admin@trustbite.in",
         "password_hash": hash_password("Admin@123"),

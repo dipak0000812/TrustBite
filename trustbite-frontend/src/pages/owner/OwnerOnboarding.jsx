@@ -90,6 +90,16 @@ const OwnerOnboarding = () => {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const validate = () => {
+    if (step === 1) {
+      if (!form.owner_phone || !form.owner_phone.trim()) {
+        toast.error('Contact phone number is required');
+        return false;
+      }
+      if (!/^\+?[\d\s\-]{7,15}$/.test(form.owner_phone.trim())) {
+        toast.error('Contact phone number format is invalid (7-15 digits)');
+        return false;
+      }
+    }
     if (step === 2) {
       if (!form.name.trim()) { toast.error('Mess name is required'); return false; }
       if (!form.address.trim()) { toast.error('Address is required'); return false; }
@@ -103,6 +113,14 @@ const OwnerOnboarding = () => {
       }
     }
     if (step === 6) {
+      if (!form.owner_phone || !form.owner_phone.trim()) {
+        toast.error('Contact phone number is required');
+        return false;
+      }
+      if (!/^\+?[\d\s\-]{7,15}$/.test(form.owner_phone.trim())) {
+        toast.error('Contact phone number format is invalid (7-15 digits)');
+        return false;
+      }
       if (!coverImage) {
         toast.error('Please upload at least one image and set it as cover');
         return false;

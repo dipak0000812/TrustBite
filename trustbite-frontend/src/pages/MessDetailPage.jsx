@@ -18,6 +18,7 @@ const MessDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [isFav, setIsFav] = useState(false);
   const [favLoading, setFavLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const navigate = useNavigate();
 
@@ -41,6 +42,7 @@ const MessDetailPage = () => {
           setMess(messData);
           setMenu(menuData);
           setReviews(reviewData);
+          setImageError(false);
         }
 
         if (isAuthenticated && user?.role === 'student') {
@@ -193,16 +195,28 @@ const MessDetailPage = () => {
           <div className="flex-1">
             
             {/* Image Gallery */}
-            {heroImage ? (
+            {heroImage && !imageError ? (
               <div className="mb-8 space-y-3 px-2 sm:px-0">
                 <div className="w-full h-[240px] sm:h-[400px] rounded-[24px] sm:rounded-[32px] overflow-hidden bg-slate-100 shadow-sm border border-slate-200/50">
-                  <img src={heroImage} alt={mess.name} className="w-full h-full object-cover" />
+                  <img 
+                    src={heroImage} 
+                    alt={mess.name} 
+                    className="w-full h-full object-cover" 
+                    onError={() => setImageError(true)}
+                  />
                 </div>
                 {thumbnails.length > 0 && (
                   <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
                     {thumbnails.map((img, i) => (
                       <div key={i} className="flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden bg-slate-100 shadow-sm border border-slate-200/50 snap-start">
-                        <img src={img} alt={`${mess.name} view ${i+2}`} className="w-full h-full object-cover" />
+                        <img 
+                          src={img} 
+                          alt={`${mess.name} view ${i+2}`} 
+                          className="w-full h-full object-cover" 
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
                       </div>
                     ))}
                   </div>

@@ -26,6 +26,8 @@ def _validate_price(v):
 def _validate_phone(v):
     if v is not None:
         v = v.strip()
+        if not v:
+            raise ValueError('Phone number is required')
         if not re.match(r'^\+?[\d\s\-]{7,15}$', v):
             raise ValueError('Phone number format is invalid')
     return v
@@ -126,6 +128,8 @@ class MessCreate(BaseModel):
     @field_validator('owner_phone')
     @classmethod
     def validate_owner_phone(cls, v):
+        if v is None or not v.strip():
+            raise ValueError('Phone number is required')
         return _validate_phone(v)
 
     @field_validator('cuisine_type')

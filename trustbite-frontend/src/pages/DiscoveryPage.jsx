@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { messService } from '../services/messService';
 import { MessCardSkeleton } from '../components/Skeleton';
 import MessCard from '../components/MessCard';
+import useStore from '../store/useStore';
 
 const CUISINE_EMOJI = { maharashtrian: '🍛', south_indian: '🥘', north_indian: '🫓', gujarati: '🥗', rajasthani: '🫕', multi_cuisine: '🍱' };
 const FLOAT_DELAYS = [0, 0.5, 1.0, 1.5, 0.8, 0.3, 0.7, 1.2];
@@ -21,6 +22,7 @@ const cuisines = [
 ];
 
 const DiscoveryPage = () => {
+  const { user } = useStore();
   const location = useLocation();
   const initialSearch = new URLSearchParams(location.search).get('search') || '';
 
@@ -54,6 +56,9 @@ const DiscoveryPage = () => {
       if (nearestOnly && userLocation) {
         params.latitude = userLocation.latitude;
         params.longitude = userLocation.longitude;
+      }
+      if (user?.preferences?.city) {
+        params.city = user.preferences.city;
       }
       const data = await messService.getAll(params);
       
@@ -131,7 +136,7 @@ const DiscoveryPage = () => {
               <h1 className="font-display font-black text-3xl sm:text-4xl text-[#111827] mb-2 leading-tight">Discover Messes</h1>
               <p className="flex items-center justify-center lg:justify-start gap-1.5 text-[13px]">
                 <MapPin className="w-3.5 h-3.5 text-[#F97316]" />
-                <span className="text-[#F97316] font-black uppercase tracking-wider">2,400+ Verified · Pune</span>
+                <span className="text-[#F97316] font-black uppercase tracking-wider">2,400+ Verified · {user?.preferences?.city || 'Pune'}</span>
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
@@ -263,7 +268,7 @@ const DiscoveryPage = () => {
       {/* ─── SECTION 3: Results Count + View Toggle ─── */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex items-center justify-between">
         <p className="text-[13px] font-medium" style={{ fontFamily: "'DM Sans', sans-serif", color: '#6B7280' }}>
-          Showing <span className="text-[#111827] font-bold">{loading ? '...' : messes.length}</span> messes <span className="text-[#F97316]">in Pune</span>
+          Showing <span className="text-[#111827] font-bold">{loading ? '...' : messes.length}</span> messes <span className="text-[#F97316]">in {user?.preferences?.city || 'Pune'}</span>
         </p>
         <div className="flex items-center gap-1">
           <button onClick={() => setViewMode('grid')}

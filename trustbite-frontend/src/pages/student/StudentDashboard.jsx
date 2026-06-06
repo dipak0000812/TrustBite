@@ -36,11 +36,34 @@ const Dashboard = () => {
     const load = async () => {
       if (mounted) setLoading(true);
       try {
+        const favPromise = user?.role === 'student' ? favouriteService.getAll() : Promise.resolve([]);
+        
+        let suggestionsPromise;
+        if (aiService?.getSuggestions) {
+          suggestionsPromise = (async () => {
+            try {
+              let suggestions = await aiService.getSuggestions({ limit: 4, min_trust: 4.0 });
+              if (!suggestions || suggestions.length === 0) {
+                suggestions = await aiService.getSuggestions({ limit: 4, min_trust: 0.0 });
+              }
+              return suggestions;
+            } catch (err) {
+              console.error("Failed to fetch suggestions with trust >= 4.0, retrying with 0.0", err);
+              try {
+                return await aiService.getSuggestions({ limit: 4, min_trust: 0.0 });
+              } catch (retryErr) {
+                console.error("Suggestions fallback fetch failed", retryErr);
+                return [];
+              }
+            }
+          })();
+        } else {
+          suggestionsPromise = Promise.resolve([]);
+        }
+
         const [favData, aiData] = await Promise.allSettled([
-          user?.role === 'student' ? favouriteService.getAll() : Promise.resolve([]),
-          aiService?.getSuggestions 
-            ? aiService.getSuggestions({ limit: 4, min_trust: 4.0 }) 
-            : Promise.resolve([]),
+          favPromise,
+          suggestionsPromise,
         ]);
         
         if (mounted) {

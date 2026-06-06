@@ -26,18 +26,32 @@ def seed_data():
     
     print("Seeding demo users...")
     pwd_hash = hash_password("TrustBite@123")
-    admin_pwd = hash_password("Admin@123")
+    admin_pwd_backup = hash_password("Admin@123")
+    admin_pwd_primary = hash_password("Trustbite@03")
     
-    # 1. Admin
-    admin = User(
+    # 1. Primary Admin
+    admin_primary = User(
         id=uuid.uuid4(),
-        email="admin@trustbite.com",
-        password_hash=admin_pwd,
-        full_name="Platform Administrator",
+        email="trustbite09@gmail.com",
+        password_hash=admin_pwd_primary,
+        full_name="TrustBite Admin",
         role="admin",
-        is_active=True
+        is_active=True,
+        is_onboarding_complete=True
     )
-    db.add(admin)
+    db.add(admin_primary)
+    
+    # 1b. Backup Admin
+    admin_backup = User(
+        id=uuid.uuid4(),
+        email="admin@trustbite.in",
+        password_hash=admin_pwd_backup,
+        full_name="Platform Administrator (Backup)",
+        role="admin",
+        is_active=True,
+        is_onboarding_complete=True
+    )
+    db.add(admin_backup)
     
     # 2. Mess Owners
     owners_data = [
